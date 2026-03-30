@@ -64,12 +64,22 @@ Then use `/office-hours` to start building your actual product — define your u
 ### Manual Setup (without the wizard)
 
 ```bash
+# 1. Environment — copy and edit if needed (defaults work out of the box)
 cp .env.example .env
+
+# 2. Infrastructure — start postgres + redis
 docker-compose up -d
-cd frontend && npm install && npm run dev                                # terminal 1
-cd api && npm install && npx prisma migrate dev && npm run start:dev    # terminal 2
-cd jobs && cargo build && cargo run                                      # terminal 3
+
+# 3. Verify database is ready (wait a few seconds for postgres to start)
+docker compose ps                   # both should show "running"
+
+# 4. Run services
+cd api && npm install && npx prisma migrate dev --name init && npm run start:dev    # terminal 1
+cd frontend && npm install && npm run dev                                           # terminal 2
+cd jobs && cargo build && cargo run                                                 # terminal 3
 ```
+
+> **Troubleshooting:** If `prisma migrate` fails with "User was denied access", your local port 5432 may already be in use by another postgres instance. Either stop it (`brew services stop postgresql`) or change the port in `.env` and `docker-compose.yml`.
 
 ## How It Works
 

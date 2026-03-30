@@ -185,7 +185,26 @@ Generate WITHOUT asking (every project needs these):
    - NO User model yet — that's a product decision for Phase B
 3. Vite config, Tailwind config, Shadcn init if not already present
 
-Ask user to run `docker-compose up -d` then `npx prisma migrate dev` to verify database setup.
+Before running docker, check for port conflicts:
+```bash
+lsof -i :5432 2>/dev/null | head -5    # check if postgres port is in use
+lsof -i :6379 2>/dev/null | head -5    # check if redis port is in use
+```
+
+If ports are in use, warn the user:
+> "Port 5432 (or 6379) is already in use — you may have a local postgres/redis running. Either stop it or change the port in `.env` and `docker-compose.yml`."
+
+Then ask user to run:
+```bash
+docker-compose up -d
+docker compose ps                       # verify both services are running
+npx prisma migrate dev --name init      # from api/ folder
+```
+
+If prisma migrate fails, check:
+1. Is `.env` present in root? (`cp .env.example .env` if not)
+2. Does DATABASE_URL in `.env` match docker-compose credentials?
+3. Is postgres actually ready? (`docker compose logs postgres | tail -5`)
 
 ### Step 3: App Shell (Minimal)
 
