@@ -137,15 +137,10 @@ for file in "$UI_DIR"/*.tsx; do
 "
 
   # Insert before the Component Decision Map section
+  # Uses awk instead of sed to avoid macOS sed multiline escaping issues
   if grep -q "^## Component Decision Map" "$CATALOG"; then
-    # macOS sed requires different syntax than GNU sed
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-      sed -i '' "/^## Component Decision Map/i\\
-$entry
-" "$CATALOG"
-    else
-      sed -i "/^## Component Decision Map/i\\$entry" "$CATALOG"
-    fi
+    awk -v entry="$entry" '/^## Component Decision Map/ { print entry; print ""; } { print }' "$CATALOG" > "$CATALOG.tmp"
+    mv "$CATALOG.tmp" "$CATALOG"
   else
     # Fallback: append to end
     printf "\n%s\n" "$entry" >> "$CATALOG"

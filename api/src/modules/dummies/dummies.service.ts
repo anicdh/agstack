@@ -50,7 +50,7 @@ export class DummiesService extends BaseCrudService<DummyPublic, CreateDummyDto,
    * Your module might override create for unique checks, computed fields,
    * side effects (events, notifications), etc.
    */
-  async create(dto: CreateDummyDto): Promise<DummyPublic> {
+  override async create(dto: CreateDummyDto): Promise<DummyPublic> {
     // Check email uniqueness
     const existing = await this.prisma.dummy.findUnique({
       where: { email: dto.email.toLowerCase() },
@@ -81,7 +81,7 @@ export class DummiesService extends BaseCrudService<DummyPublic, CreateDummyDto,
    *
    * DEMONSTRATES: Post-processing query results to strip sensitive data.
    */
-  async findById(id: string): Promise<DummyPublic> {
+  override async findById(id: string): Promise<DummyPublic> {
     const dummy = await super.findById(id);
     return this.excludeSecret(dummy as unknown as Dummy);
   }

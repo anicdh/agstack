@@ -111,11 +111,19 @@ Then:
    - react, react-dom, react-router-dom
    - @tanstack/react-query, zustand
    - zod, react-hook-form, @hookform/resolvers
-   - tailwindcss, @shadcn/ui
+   - tailwindcss, tailwind-merge, clsx, class-variance-authority
    - lucide-react
    - vite, typescript (devDeps)
    - vitest, @testing-library/react, @testing-library/jest-dom (devDeps)
    - Scripts: dev, build, preview, test, test:watch, typecheck, lint
+
+   **CRITICAL — Version pinning:**
+   DO NOT hardcode version numbers. Instead, use `"*"` for all dependencies,
+   then IMMEDIATELY run `npm install` which will resolve to latest compatible versions,
+   and commit the resulting package-lock.json. Alternatively, before writing package.json,
+   run `npm view <package-name> version` for each dependency to get the REAL latest version.
+   NEVER guess or hallucinate version numbers — this causes ETARGET install failures.
+
 4. Generate `api/package.json` with dependencies:
    - @nestjs/core, @nestjs/common, @nestjs/platform-express
    - @nestjs/swagger, @nestjs/passport, passport-jwt
@@ -124,7 +132,18 @@ Then:
    - bullmq
    - Scripts: dev (start:dev), build, start:prod, test, test:e2e, typecheck, lint
    - Also generate `api/nest-cli.json`
-5. Generate `.env.example` — single source of truth for ALL env vars (docker + app).
+   - Same version pinning rule as frontend: use `"*"` or `npm view` first.
+5. Generate `shared/package.json` for workspace module resolution:
+   ```json
+   {
+     "name": "<project-name>-shared",
+     "version": "0.1.0",
+     "private": true,
+     "main": "./types/index.ts",
+     "types": "./types/index.ts"
+   }
+   ```
+6. Generate `.env.example` — single source of truth for ALL env vars (docker + app).
    Required vars with sensible dev defaults:
    ```
    # Docker + Database
@@ -147,8 +166,8 @@ Then:
    VITE_API_URL=http://localhost:3000/api/v1
    VITE_APP_ENV=development
    ```
-6. Auto-copy `.env.example` → `.env` if `.env` does not exist
-7. Tell the user: "`.env` has been created with dev defaults. Review and adjust if needed, then confirm when ready."
+7. Auto-copy `.env.example` → `.env` if `.env` does not exist
+8. Tell the user: "`.env` has been created with dev defaults. Review and adjust if needed, then confirm when ready."
    Wait for user confirmation before proceeding.
 
 Ask user to run `npm install` in both frontend/ and api/ to confirm dependencies install correctly.
@@ -184,6 +203,8 @@ Generate WITHOUT asking (every project needs these):
    - Only Dummy model (from reference feature) if it still exists
    - NO User model yet — that's a product decision for Phase B
 3. Vite config, Tailwind config, Shadcn init if not already present
+   - Vite config MUST include `@shared` resolve alias: `{ "@shared": path.resolve(__dirname, "../shared") }`
+   - This matches the `@shared/*` path alias in `frontend/tsconfig.json`
 
 Before running docker, check for port conflicts:
 ```bash
@@ -211,10 +232,16 @@ If prisma migrate fails, check:
 Generate a MINIMAL app shell that runs:
 1. Install base Shadcn components:
    ```bash
-   npx shadcn@latest add button input label separator toast
+   npx shadcn@latest add button input label separator sonner
    ```
-2. Run `bash scripts/sync-components.sh` to update COMPONENTS.md
-3. Generate:
+2. **Fix Sonner component** — Shadcn's default `sonner.tsx` imports `useTheme` from `next-themes`
+   which does NOT exist in Vite projects. After installing, edit `frontend/src/components/ui/sonner.tsx`:
+   - Remove the `import { useTheme } from "next-themes"` line
+   - Remove the `const { theme = "system" } = useTheme()` line
+   - Replace `theme={theme as ToasterProps["theme"]}` with `theme="light"`
+   This is a known Shadcn issue — their default template assumes Next.js.
+3. Run `bash scripts/sync-components.sh` to update COMPONENTS.md
+4. Generate:
    - `frontend/src/app/main.tsx` — entry point
    - `frontend/src/app/providers.tsx` — QueryClient provider (NO auth yet)
    - `frontend/src/app/router.tsx` — basic React Router (just home page + 404)
