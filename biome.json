@@ -129,14 +129,15 @@
     }
   ],
   "files": {
-    "ignore": [
-      "node_modules",
-      "dist",
-      "build",
-      ".vite",
-      "coverage",
-      "*.min.js",
-      "prisma/migrations"
+    "includes": [
+      "**",
+      "!node_modules",
+      "!dist",
+      "!build",
+      "!.vite",
+      "!coverage",
+      "!*.min.js",
+      "!prisma/migrations"
     ]
   }
 }
