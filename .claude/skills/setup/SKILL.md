@@ -16,13 +16,22 @@ The setup is split into two phases:
 Phase A should be fast — get to a working `npm run dev` ASAP.
 Phase B is where the real product decisions happen.
 
-**IMPORTANT**: All generated code MUST follow the conventions in CLAUDE.md, including:
-- Base classes (BaseCrudService, BaseCrudController, JobRunner)
-- Shared hooks (usePaginatedQuery, useApiMutation, queryKeys)
-- Reuse Map rules
-- UX guide principles (docs/ux-guide.md)
-- Shadcn components (frontend/src/components/ui/COMPONENTS.md)
-- TypeScript maximum strict mode
+**IMPORTANT — DO NOT regenerate boilerplate code:**
+The starter kit already ships with ALL reference code pre-built and tested:
+- Dummies module (API: controller, service, DTOs, tests)
+- Dummies feature (Frontend: components, queries, types, tests)
+- Common infrastructure (BaseCrudService, BaseCrudController, PrismaService,
+  hooks, api-client, query-keys, interceptors, filters)
+- Shared types (shared/types/dummy.ts)
+- Prisma schema (api/prisma/schema.prisma with Dummy model)
+
+DO NOT rewrite, regenerate, or modify these files during /setup.
+They are already TypeScript-strict compliant and tested.
+Setup should ONLY generate project-specific files: package.json, .env,
+vite config, tailwind config, and the minimal app shell (main.tsx, router, layout).
+
+All generated code MUST follow the conventions in CLAUDE.md, including:
+- TypeScript maximum strict mode (exactOptionalPropertyTypes, noImplicitOverride, etc.)
 - Biome linting rules
 
 ---
@@ -215,9 +224,8 @@ Generate WITHOUT asking (every project needs these):
    This means `docker-compose up -d` works IMMEDIATELY after clone. No .env needed for docker.
    The `.env` file is only used by the app code (api, frontend) to CONNECT to these docker services.
 
-2. `api/prisma/schema.prisma` with minimal starter schema:
-   - Only Dummy model (from reference feature) if it still exists
-   - NO User model yet — that's a product decision for Phase B
+2. `api/prisma/schema.prisma` — ALREADY EXISTS in boilerplate with Dummy model.
+   DO NOT regenerate. Only verify it's present. NO User model yet — that's Phase B.
 3. Vite config, Tailwind config, Shadcn init if not already present
    - Vite config MUST include `@shared` resolve alias: `{ "@shared": path.resolve(__dirname, "../shared") }`
    - This matches the `@shared/*` path alias in `frontend/tsconfig.json`
@@ -245,7 +253,12 @@ If prisma migrate fails, check:
 
 ### Step 3: App Shell (Minimal)
 
-Generate a MINIMAL app shell that runs:
+**Pre-existing files from boilerplate (DO NOT regenerate):**
+All Dummies reference code, common infrastructure (base classes, hooks, api-client,
+interceptors, filters), shared types, and Prisma schema are ALREADY in the repo.
+Do NOT rewrite them — they are tested and TypeScript-strict compliant.
+
+**Only generate these NEW project-specific files:**
 1. Install base Shadcn components:
    ```bash
    npx shadcn@latest add button input label separator sonner
@@ -257,12 +270,15 @@ Generate a MINIMAL app shell that runs:
    - Replace `theme={theme as ToasterProps["theme"]}` with `theme="light"`
    This is a known Shadcn issue — their default template assumes Next.js.
 3. Run `bash scripts/sync-components.sh` to update COMPONENTS.md
-4. Generate:
-   - `frontend/src/app/main.tsx` — entry point
+4. Generate ONLY these app shell files (everything else already exists):
+   - `frontend/index.html` — Vite entry HTML
+   - `frontend/src/app/main.tsx` — React entry point
    - `frontend/src/app/providers.tsx` — QueryClient provider (NO auth yet)
    - `frontend/src/app/router.tsx` — basic React Router (just home page + 404)
    - `frontend/src/app/layout.tsx` — minimal layout (header + content area, NO sidebar yet)
    - `frontend/src/pages/home.tsx` — placeholder home page with project name
+   - `api/src/main.ts` — NestJS entry point (bootstrap, Swagger, global pipes/filters)
+   - `api/src/app.module.ts` — Root module importing DummiesModule
 
 Ask user to run `npm run dev` and verify both frontend (:5173) and API (:3000) are working.
 
