@@ -52,7 +52,8 @@ export const idSchema = z.string().uuid("Invalid ID format");
  */
 export function getErrorMessage(error: unknown): string {
   if (error instanceof z.ZodError) {
-    return error.errors.map((e) => e.message).join(", ");
+    // Zod v4 uses .issues, v3 uses .errors — .issues works in both
+    return error.issues.map((issue) => issue.message).join(", ");
   }
   if (error instanceof Error) {
     return error.message;
@@ -63,13 +64,13 @@ export function getErrorMessage(error: unknown): string {
 /**
  * Create a confirm password refinement for registration forms.
  */
-export function withConfirmPassword<T extends z.ZodTypeAny>(
+export function withConfirmPassword<T extends z.ZodObject<z.ZodRawShape>>(
   schema: T,
   passwordField = "password",
   confirmField = "confirmPassword",
 ) {
   return schema.refine(
-    (data: Record<string, unknown>) => data[passwordField] === data[confirmField],
+    (data) => (data as Record<string, unknown>)[passwordField] === (data as Record<string, unknown>)[confirmField],
     {
       message: "Passwords do not match",
       path: [confirmField],

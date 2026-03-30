@@ -300,8 +300,18 @@ If prisma migrate fails, check:
 
 **Pre-existing files from boilerplate (DO NOT regenerate):**
 All Dummies reference code, common infrastructure (base classes, hooks, api-client,
-interceptors, filters), shared types, and Prisma schema are ALREADY in the repo.
-Do NOT rewrite them — they are tested and TypeScript-strict compliant.
+interceptors, filters), shared types, Prisma schema, AND these entry points are
+ALREADY in the repo:
+- `api/src/main.ts` — NestJS bootstrap with Swagger, CORS, global pipes/filters
+- `api/src/app.module.ts` — Root module importing DummiesModule
+- `api/src/common/prisma.service.ts` — NestJS-managed PrismaClient
+- `frontend/src/lib/form-utils.ts` — Zod validation schemas
+- `frontend/src/lib/api-client.ts` — HTTP client wrapper
+- `frontend/src/hooks/use-paginated-query.ts` — Paginated query hook
+- `frontend/src/hooks/use-api-mutation.ts` — Mutation hook with toast
+
+Do NOT rewrite, modify, or regenerate ANY of these — they are tested and
+TypeScript-strict compliant. If /setup rewrites these, tokens are wasted.
 
 **Only generate these NEW project-specific files:**
 1. Install base Shadcn components:
@@ -322,8 +332,6 @@ Do NOT rewrite them — they are tested and TypeScript-strict compliant.
    - `frontend/src/app/router.tsx` — basic React Router (just home page + 404)
    - `frontend/src/app/layout.tsx` — minimal layout (header + content area, NO sidebar yet)
    - `frontend/src/pages/home.tsx` — placeholder home page with project name
-   - `api/src/main.ts` — NestJS entry point (bootstrap, Swagger, global pipes/filters)
-   - `api/src/app.module.ts` — Root module importing DummiesModule
 
 Ask user to run `npm run dev` and verify both frontend (:5173) and API (:3000) are working.
 
