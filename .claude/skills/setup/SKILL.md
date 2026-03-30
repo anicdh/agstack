@@ -157,9 +157,12 @@ Then:
    npm view @nestjs/core version   # → 11.0.1 → use "^11.0.1"
    ```
 
-   Special case — TypeScript: ALWAYS use TypeScript 5.x (`"^5"`). TypeScript 6
-   has breaking changes and many tools (ts-jest, ts-node, NestJS CLI) do not
-   support it yet. This will change — check ecosystem readiness before upgrading.
+   **Packages that MUST be pinned to stable major versions:**
+   - TypeScript: ALWAYS `"^5"` — TS 6 has breaking changes, ts-jest/ts-node/NestJS not ready.
+   - Prisma (@prisma/client + prisma): ALWAYS `"^6"` — Prisma 7 removes datasource.url from
+     schema files (breaking change), requires prisma.config.ts. Prisma 6 is stable and
+     the boilerplate schema.prisma is written for it. DO NOT install Prisma 7.
+   - These constraints will change over time — check ecosystem readiness before upgrading.
 
 4. Generate `api/package.json` with dependencies:
    - @nestjs/core, @nestjs/common, @nestjs/platform-express
@@ -238,6 +241,34 @@ Generate WITHOUT asking (every project needs these):
 
 2. `api/prisma/schema.prisma` — ALREADY EXISTS in boilerplate with Dummy model.
    DO NOT regenerate. Only verify it's present. NO User model yet — that's Phase B.
+
+   **Prisma 7+ compatibility:** After `npm install`, check Prisma version:
+   ```bash
+   npx prisma --version
+   ```
+   If Prisma 7+ is installed, the boilerplate schema has `url = env("DATABASE_URL")`
+   which is NO LONGER supported in schema files. You must:
+   a. Remove the `url` line from `datasource db {}` in schema.prisma (keep only `provider`)
+   b. Create `api/prisma/prisma.config.ts`:
+      ```typescript
+      import path from "node:path";
+      import { defineConfig } from "prisma/config";
+
+      export default defineConfig({
+        earlyAccess: true,
+        schema: path.join(__dirname, "schema.prisma"),
+        migrate: {
+          async resolve({ datasourceUrl }) {
+            return {
+              url: datasourceUrl ?? process.env["DATABASE_URL"] ?? "",
+            };
+          },
+        },
+      });
+      ```
+   c. Also add `output = "../node_modules/.prisma/client"` to `generator client {}`
+
+   If Prisma 5 or 6 — no changes needed, schema works as-is.
 3. Vite config, Tailwind config, Shadcn init if not already present
    - Vite config MUST include `@shared` resolve alias: `{ "@shared": path.resolve(__dirname, "../shared") }`
    - This matches the `@shared/*` path alias in `frontend/tsconfig.json`
@@ -262,6 +293,8 @@ If prisma migrate fails, check:
 1. Is `.env` present in root? (`cp .env.example .env` if not)
 2. Does DATABASE_URL in `.env` match docker-compose credentials?
 3. Is postgres actually ready? (`docker compose logs postgres | tail -5`)
+4. Prisma 7 error "datasource property `url` is no longer supported"?
+   → Follow the Prisma 7 compatibility steps above (remove url from schema, create prisma.config.ts)
 
 ### Step 3: App Shell (Minimal)
 

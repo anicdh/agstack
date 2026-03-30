@@ -9,6 +9,13 @@
 //   npx prisma generate
 //
 // DO NOT edit migration files after creation.
+//
+// NOTE on Prisma versions:
+// - Prisma 5/6: datasource.url = env("DATABASE_URL") works directly.
+// - Prisma 7+:  datasource.url is removed from schema. Connection URL
+//   must be configured in prisma.config.ts instead. If you get error
+//   "The datasource property `url` is no longer supported in schema files",
+//   see /setup skill Step 2 for Prisma 7 migration instructions.
 
 generator client {
   provider = "prisma-client-js"
