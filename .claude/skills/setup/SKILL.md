@@ -99,7 +99,21 @@ Ask the user:
 Then:
 1. Update `CLAUDE.md` — replace `[Project Name]` with actual name, replace `[Brief description]` with actual description
 2. Generate root `package.json` with project name and scripts:
-   - `dev` — run all services (concurrently)
+   **CRITICAL — npm workspaces:**
+   The root package.json MUST include a `workspaces` field so `npm run dev -w api`
+   and `npm run dev -w frontend` work correctly:
+   ```json
+   {
+     "name": "<project-name>",
+     "private": true,
+     "workspaces": ["frontend", "api", "shared"],
+     "scripts": { ... }
+   }
+   ```
+   Without `"workspaces"`, `npm -w api` will fail with "No workspaces found".
+
+   Scripts:
+   - `dev` — run all services (concurrently: `concurrently \"npm run dev -w api\" \"npm run dev -w frontend\"`)
    - `build` — build all
    - `test` — run all tests
    - `lint` — biome check
@@ -107,6 +121,8 @@ Then:
    - `scaffold:clean` — bash scripts/scaffold-clean.sh
    - `scaffold:generate` — bash scripts/scaffold-generate.sh
    - `sync:components` — bash scripts/sync-components.sh
+
+   After generating root package.json, run `npm install` from root to link workspaces.
 3. Generate `frontend/package.json` with dependencies:
    - react, react-dom, react-router-dom
    - @tanstack/react-query, zustand
