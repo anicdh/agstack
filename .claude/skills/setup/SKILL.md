@@ -16,23 +16,31 @@ The setup is split into two phases:
 Phase A should be fast — get to a working `npm run dev` ASAP.
 Phase B is where the real product decisions happen.
 
-**IMPORTANT — DO NOT regenerate boilerplate code:**
-The starter kit already ships with ALL reference code pre-built and tested:
-- Dummies module (API: controller, service, DTOs, tests)
-- Dummies feature (Frontend: components, queries, types, tests)
-- Common infrastructure (BaseCrudService, BaseCrudController, PrismaService,
-  hooks, api-client, query-keys, interceptors, filters)
-- Shared types (shared/types/dummy.ts)
-- Prisma schema (api/prisma/schema.prisma with Dummy model)
+**CRITICAL — DO NOT regenerate boilerplate code. COPY + REPLACE only.**
 
-DO NOT rewrite, regenerate, or modify these files during /setup.
-They are already TypeScript-strict compliant and tested.
-Setup should ONLY generate project-specific files: package.json, .env,
-vite config, tailwind config, and the minimal app shell (main.tsx, router, layout).
+The starter kit ships with EVERYTHING pre-built and tested. /setup should NOT
+write any file from scratch. The ONLY things /setup does:
+1. Copy `.template` files → real files (package.json.template → package.json)
+2. Replace `__PROJECT_NAME__` placeholder with actual project name
+3. Replace `__VERSION__` placeholder with real versions from `npm view`
+4. Install Shadcn components (npm-installed, not in boilerplate)
+5. Fix Sonner next-themes import (Shadcn bug)
+6. Run prisma migrate
 
-All generated code MUST follow the conventions in CLAUDE.md, including:
-- TypeScript maximum strict mode (exactOptionalPropertyTypes, noImplicitOverride, etc.)
-- Biome linting rules
+**Pre-built files that MUST NOT be regenerated (saves ~5000 tokens each run):**
+- API: main.ts, app.module.ts, prisma.service.ts, base-crud.service/controller,
+  dummies module (controller, service, DTOs, tests), interceptors, filters, DTOs
+- Frontend: main.tsx, providers.tsx, router.tsx, layout.tsx, home.tsx,
+  api-client.ts, form-utils.ts, query-keys.ts, utils.ts, globals.css,
+  use-paginated-query.ts, use-api-mutation.ts, use-debounce.ts,
+  dummies feature (components, queries, types, tests), test utils
+- Config: vite.config.ts, tailwind.config.ts, postcss.config.js, components.json,
+  tsconfig.json (root, frontend, api, shared), vitest.config.ts,
+  jest.config.ts, jest.e2e.config.ts, nest-cli.json,
+  biome.json, lefthook.yml, docker-compose.yml, .env.example
+- Shared: types/dummy.ts, types/job-envelope.ts, constants/job-types.ts
+
+If /setup rewrites ANY of these, it's wasting tokens and risking regressions.
 
 ---
 
@@ -107,73 +115,42 @@ Ask the user:
 
 Then:
 1. Update `CLAUDE.md` — replace `[Project Name]` with actual name, replace `[Brief description]` with actual description
-2. Generate root `package.json` with project name and scripts:
-   **CRITICAL — npm workspaces:**
-   The root package.json MUST include a `workspaces` field so `npm run dev -w api`
-   and `npm run dev -w frontend` work correctly:
-   ```json
-   {
-     "name": "<project-name>",
-     "private": true,
-     "workspaces": ["frontend", "api", "shared"],
-     "scripts": { ... }
-   }
-   ```
-   Without `"workspaces"`, `npm -w api` will fail with "No workspaces found".
 
-   Scripts:
-   - `dev` — run all services (concurrently: `concurrently \"npm run dev -w api\" \"npm run dev -w frontend\"`)
-   - `build` — build all
-   - `test` — run all tests
-   - `lint` — biome check
-   - `typecheck` — tsc --noEmit for frontend + api
-   - `scaffold:clean` — bash scripts/scaffold-clean.sh
-   - `scaffold:generate` — bash scripts/scaffold-generate.sh
-   - `sync:components` — bash scripts/sync-components.sh
+2. **Create package.json files from templates (DO NOT write from scratch):**
+   The boilerplate ships `.template` files with the correct structure, scripts, and
+   dependency list. You only need to:
+   a. Copy template → real file
+   b. Replace `__PROJECT_NAME__` with actual project name
+   c. Replace `__VERSION__` with real versions from `npm view`
 
-   After generating root package.json, run `npm install` from root to link workspaces.
-3. Generate `frontend/package.json` with dependencies:
-   - react, react-dom, react-router-dom
-   - @tanstack/react-query, zustand
-   - zod, react-hook-form, @hookform/resolvers
-   - tailwindcss, tailwind-merge, clsx, class-variance-authority
-   - lucide-react
-   - vite, typescript (devDeps)
-   - vitest, @testing-library/react, @testing-library/jest-dom (devDeps)
-   - Scripts: dev, build, preview, test, test:watch, typecheck, lint
-
-   **CRITICAL — Version resolution (DO NOT hallucinate versions):**
-   Before writing ANY package.json, run `npm view <package> version` for EVERY
-   dependency to get the REAL latest version. Write the exact version with `^` prefix.
-
-   DO NOT use `"*"` — it can pull bleeding-edge major versions (e.g. TypeScript 6)
-   that break ecosystem compatibility (ts-jest, NestJS, Vite plugins, etc.).
-   DO NOT guess version numbers from training data — they may not exist (ETARGET).
-
-   Example workflow:
+   **Workflow:**
    ```bash
-   npm view react version          # → 19.1.0 → use "^19.1.0"
-   npm view typescript version     # → 5.9.3  → use "^5.9.3" (NOT 6.x — ecosystem not ready)
-   npm view @nestjs/core version   # → 11.0.1 → use "^11.0.1"
+   # 1. Get all unique package names from templates
+   grep -h '"__VERSION__"' package.json.template frontend/package.json.template api/package.json.template \
+     | sed 's/.*"\([^"]*\)": "__VERSION__".*/\1/' | sort -u
+
+   # 2. For EACH package, get the real latest version:
+   npm view react version           # → use "^<result>"
+   npm view @nestjs/core version    # → use "^<result>"
+   # ... repeat for all packages
+
+   # 3. Copy templates and replace placeholders:
+   cp package.json.template package.json
+   cp frontend/package.json.template frontend/package.json
+   cp api/package.json.template api/package.json
+
+   # 4. Replace __PROJECT_NAME__ and each __VERSION__ with real values
+   # Use sed or write the file directly with resolved values
    ```
 
-   **Packages that MUST be pinned to stable major versions:**
-   - TypeScript: ALWAYS `"^5"` — TS 6 has breaking changes, ts-jest/ts-node/NestJS not ready.
-   - Prisma (@prisma/client + prisma): ALWAYS `"^6"` — Prisma 7 removes datasource.url from
-     schema files (breaking change), requires prisma.config.ts. Prisma 6 is stable and
-     the boilerplate schema.prisma is written for it. DO NOT install Prisma 7.
-   - These constraints will change over time — check ecosystem readiness before upgrading.
+   **CRITICAL — Version pinning rules:**
+   - TypeScript: template already has `"^5"` — DO NOT change to 6.x (ecosystem not ready)
+   - Prisma: template already has `"^6"` — DO NOT change to 7.x (breaking changes)
+   - All other `__VERSION__`: resolve via `npm view <pkg> version`, use `"^<result>"`
+   - DO NOT use `"*"` — it pulls bleeding-edge versions that break things
+   - DO NOT guess versions from training data — always `npm view` first
 
-4. Generate `api/package.json` with dependencies:
-   - @nestjs/core, @nestjs/common, @nestjs/platform-express
-   - @nestjs/swagger, @nestjs/passport, passport-jwt
-   - @prisma/client, prisma (devDep)
-   - class-validator, class-transformer
-   - bullmq
-   - Scripts: dev (start:dev), build, start:prod, test, test:e2e, typecheck, lint
-   - Also generate `api/nest-cli.json`
-   - Same version resolution rule: `npm view` first, NEVER guess.
-5. Generate `shared/package.json` for workspace module resolution:
+3. **Create shared/package.json** (no template needed — it's tiny):
    ```json
    {
      "name": "<project-name>-shared",
@@ -183,95 +160,40 @@ Then:
      "types": "./types/index.ts"
    }
    ```
-6. Generate `.env.example` — single source of truth for ALL env vars (docker + app).
-   Required vars with sensible dev defaults:
+
+4. **Set up .env:**
+   `.env.example` already exists in the boilerplate. Only update the `POSTGRES_DB` value
+   to match the project name:
+   ```bash
+   sed -i "s/POSTGRES_DB=.*/POSTGRES_DB=<project-name>/" .env.example
    ```
-   # Docker + Database
-   POSTGRES_USER=postgres
-   POSTGRES_PASSWORD=postgres
-   POSTGRES_DB=<project-name>
-   DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost:5432/${POSTGRES_DB}
+   Then auto-copy `.env.example` → `.env` if `.env` does not exist.
 
-   # Docker + Redis
-   REDIS_URL=redis://localhost:6379
-
-   # Auth
-   JWT_SECRET=change-me-in-production
-   JWT_EXPIRES_IN=15m
-
-   # API
-   PORT=3000
-
-   # Frontend
-   VITE_API_URL=http://localhost:3000/api/v1
-   VITE_APP_ENV=development
-   ```
-7. Auto-copy `.env.example` → `.env` if `.env` does not exist
-8. Tell the user: "`.env` has been created with dev defaults. Review and adjust if needed, then confirm when ready."
+5. Tell the user: "`.env` has been created with dev defaults. Review and adjust if needed, then confirm when ready."
    Wait for user confirmation before proceeding.
 
-Ask user to run `npm install` in both frontend/ and api/ to confirm dependencies install correctly.
+6. Run `npm install` from root to link workspaces and install all dependencies.
 
 ### Step 2: Infrastructure
 
-Generate WITHOUT asking (every project needs these):
+**All infrastructure files are pre-existing in the boilerplate. Verify — do NOT regenerate:**
 
-1. `docker-compose.yml` — reads variables from `.env` file:
-   ```yaml
-   services:
-     postgres:
-       image: postgres:16
-       environment:
-         POSTGRES_USER: ${POSTGRES_USER}
-         POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-         POSTGRES_DB: ${POSTGRES_DB}
-       ports:
-         - "5432:5432"
-       volumes:
-         - postgres_data:/var/lib/postgresql/data
-     redis:
-       image: redis:7-alpine
-       ports:
-         - "6379:6379"
-   volumes:
-     postgres_data:
-   ```
-   This means `docker-compose up -d` works IMMEDIATELY after clone. No .env needed for docker.
-   The `.env` file is only used by the app code (api, frontend) to CONNECT to these docker services.
+1. `docker-compose.yml` — ALREADY EXISTS. Reads `POSTGRES_DB` from `.env`.
+   DO NOT regenerate. Only verify it's present.
 
-2. `api/prisma/schema.prisma` — ALREADY EXISTS in boilerplate with Dummy model.
-   DO NOT regenerate. Only verify it's present. NO User model yet — that's Phase B.
+2. `api/prisma/schema.prisma` — ALREADY EXISTS with Dummy model.
+   DO NOT regenerate. NO User model yet — that's Phase B.
 
-   **Prisma 7+ compatibility:** After `npm install`, check Prisma version:
-   ```bash
-   npx prisma --version
-   ```
-   If Prisma 7+ is installed, the boilerplate schema has `url = env("DATABASE_URL")`
-   which is NO LONGER supported in schema files. You must:
-   a. Remove the `url` line from `datasource db {}` in schema.prisma (keep only `provider`)
-   b. Create `api/prisma/prisma.config.ts`:
-      ```typescript
-      import path from "node:path";
-      import { defineConfig } from "prisma/config";
+   **Prisma 7+ compatibility (only if template pinning failed):** After `npm install`,
+   check `npx prisma --version`. If somehow Prisma 7+ got installed:
+   a. Remove `url` line from `datasource db {}` in schema.prisma
+   b. Create `api/prisma/prisma.config.ts` with `defineConfig` pointing to env DATABASE_URL
+   c. Add `output = "../node_modules/.prisma/client"` to `generator client {}`
+   If Prisma 6 (expected) — no changes needed.
 
-      export default defineConfig({
-        earlyAccess: true,
-        schema: path.join(__dirname, "schema.prisma"),
-        migrate: {
-          async resolve({ datasourceUrl }) {
-            return {
-              url: datasourceUrl ?? process.env["DATABASE_URL"] ?? "",
-            };
-          },
-        },
-      });
-      ```
-   c. Also add `output = "../node_modules/.prisma/client"` to `generator client {}`
-
-   If Prisma 5 or 6 — no changes needed, schema works as-is.
-3. Vite config, Tailwind config, Shadcn init if not already present
-   - Vite config MUST include `@shared` resolve alias: `{ "@shared": path.resolve(__dirname, "../shared") }`
-   - This matches the `@shared/*` path alias in `frontend/tsconfig.json`
+3. `frontend/vite.config.ts` — ALREADY EXISTS with `@` and `@shared` resolve aliases.
+   `frontend/tailwind.config.ts`, `postcss.config.js`, `components.json` — ALL pre-existing.
+   DO NOT regenerate any of these.
 
 Before running docker, check for port conflicts:
 ```bash
@@ -296,42 +218,50 @@ If prisma migrate fails, check:
 4. Prisma 7 error "datasource property `url` is no longer supported"?
    → Follow the Prisma 7 compatibility steps above (remove url from schema, create prisma.config.ts)
 
-### Step 3: App Shell (Minimal)
+### Step 3: App Shell + Shadcn Components
 
-**Pre-existing files from boilerplate (DO NOT regenerate):**
-All Dummies reference code, common infrastructure (base classes, hooks, api-client,
-interceptors, filters), shared types, Prisma schema, AND these entry points are
-ALREADY in the repo:
+**EVERYTHING below is pre-existing in the boilerplate. DO NOT regenerate ANY of these files:**
+
+Backend (all pre-built):
 - `api/src/main.ts` — NestJS bootstrap with Swagger, CORS, global pipes/filters
 - `api/src/app.module.ts` — Root module importing DummiesModule
 - `api/src/common/prisma.service.ts` — NestJS-managed PrismaClient
-- `frontend/src/lib/form-utils.ts` — Zod validation schemas
-- `frontend/src/lib/api-client.ts` — HTTP client wrapper
-- `frontend/src/hooks/use-paginated-query.ts` — Paginated query hook
-- `frontend/src/hooks/use-api-mutation.ts` — Mutation hook with toast
+- `api/nest-cli.json` — NestJS CLI config
+- All common infrastructure, dummies module, DTOs, filters, interceptors
 
-Do NOT rewrite, modify, or regenerate ANY of these — they are tested and
-TypeScript-strict compliant. If /setup rewrites these, tokens are wasted.
+Frontend (all pre-built):
+- `frontend/index.html` — Vite entry HTML (has `__PROJECT_NAME__` in title)
+- `frontend/src/app/main.tsx` — React entry point
+- `frontend/src/app/providers.tsx` — QueryClient provider
+- `frontend/src/app/router.tsx` — React Router (home + 404)
+- `frontend/src/app/layout.tsx` — Layout shell (has `__PROJECT_NAME__` in header)
+- `frontend/src/pages/home.tsx` — Home page (has `__PROJECT_NAME__` in heading)
+- `frontend/src/lib/utils.ts` — Shadcn cn() utility
+- `frontend/src/styles/globals.css` — Tailwind base + CSS variables
+- `frontend/src/lib/form-utils.ts`, `api-client.ts`, all hooks, all features
 
-**Only generate these NEW project-specific files:**
-1. Install base Shadcn components:
+**The ONLY thing /setup does here is:**
+
+1. **Replace `__PROJECT_NAME__` placeholder** in pre-existing files:
    ```bash
-   npx shadcn@latest add button input label separator sonner
+   # Replace in all files that use the placeholder
+   find frontend/index.html frontend/src/app/layout.tsx frontend/src/pages/home.tsx \
+     -exec sed -i 's/__PROJECT_NAME__/<actual-project-name>/g' {} +
    ```
-2. **Fix Sonner component** — Shadcn's default `sonner.tsx` imports `useTheme` from `next-themes`
+
+2. **Install Shadcn components** (these are npm-installed, not in boilerplate):
+   ```bash
+   cd frontend && npx shadcn@latest add button input label separator sonner
+   ```
+
+3. **Fix Sonner component** — Shadcn's default `sonner.tsx` imports `useTheme` from `next-themes`
    which does NOT exist in Vite projects. After installing, edit `frontend/src/components/ui/sonner.tsx`:
    - Remove the `import { useTheme } from "next-themes"` line
    - Remove the `const { theme = "system" } = useTheme()` line
    - Replace `theme={theme as ToasterProps["theme"]}` with `theme="light"`
    This is a known Shadcn issue — their default template assumes Next.js.
-3. Run `bash scripts/sync-components.sh` to update COMPONENTS.md
-4. Generate ONLY these app shell files (everything else already exists):
-   - `frontend/index.html` — Vite entry HTML
-   - `frontend/src/app/main.tsx` — React entry point
-   - `frontend/src/app/providers.tsx` — QueryClient provider (NO auth yet)
-   - `frontend/src/app/router.tsx` — basic React Router (just home page + 404)
-   - `frontend/src/app/layout.tsx` — minimal layout (header + content area, NO sidebar yet)
-   - `frontend/src/pages/home.tsx` — placeholder home page with project name
+
+4. **Run `bash scripts/sync-components.sh`** to update COMPONENTS.md
 
 Ask user to run `npm run dev` and verify both frontend (:5173) and API (:3000) are working.
 

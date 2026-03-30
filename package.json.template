@@ -1,0 +1,21 @@
+{
+  "name": "__PROJECT_NAME__",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": ["frontend", "api", "shared"],
+  "scripts": {
+    "dev": "concurrently \"npm run dev -w api\" \"npm run dev -w frontend\"",
+    "build": "npm run build -w api && npm run build -w frontend",
+    "test": "npm run test -w api && npm run test -w frontend",
+    "lint": "npx @biomejs/biome check .",
+    "lint:fix": "npx @biomejs/biome check --write .",
+    "typecheck": "npm run typecheck -w api && npm run typecheck -w frontend",
+    "scaffold:clean": "bash scripts/scaffold-clean.sh",
+    "scaffold:generate": "bash scripts/scaffold-generate.sh",
+    "sync:components": "bash scripts/sync-components.sh"
+  },
+  "devDependencies": {
+    "concurrently": "__VERSION__",
+    "@biomejs/biome": "__VERSION__"
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "name": "__PROJECT_NAME__-api",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "nest start --watch",
+    "start:dev": "nest start --watch",
+    "start:prod": "node dist/main",
+    "build": "nest build",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:e2e": "jest --config ./jest.e2e.config.ts",
+    "typecheck": "tsc --noEmit",
+    "lint": "npx @biomejs/biome check ./src",
+    "prisma:migrate": "npx prisma migrate dev",
+    "prisma:generate": "npx prisma generate",
+    "prisma:studio": "npx prisma studio"
+  },
+  "dependencies": {
+    "@nestjs/common": "__VERSION__",
+    "@nestjs/core": "__VERSION__",
+    "@nestjs/platform-express": "__VERSION__",
+    "@nestjs/swagger": "__VERSION__",
+    "@nestjs/passport": "__VERSION__",
+    "passport": "__VERSION__",
+    "passport-jwt": "__VERSION__",
+    "@prisma/client": "^6",
+    "class-validator": "__VERSION__",
+    "class-transformer": "__VERSION__",
+    "bullmq": "__VERSION__",
+    "reflect-metadata": "__VERSION__",
+    "rxjs": "__VERSION__"
+  },
+  "devDependencies": {
+    "typescript": "^5",
+    "@nestjs/cli": "__VERSION__",
+    "@nestjs/schematics": "__VERSION__",
+    "@nestjs/testing": "__VERSION__",
+    "@types/node": "__VERSION__",
+    "@types/passport-jwt": "__VERSION__",
+    "prisma": "^6",
+    "jest": "__VERSION__",
+    "ts-jest": "__VERSION__",
+    "@types/jest": "__VERSION__",
+    "source-map-support": "__VERSION__",
+    "tsconfig-paths": "__VERSION__"
+  }
+}

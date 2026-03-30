@@ -1,0 +1,44 @@
+{
+  "name": "__PROJECT_NAME__-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "lint": "npx @biomejs/biome check ./src"
+  },
+  "dependencies": {
+    "react": "__VERSION__",
+    "react-dom": "__VERSION__",
+    "react-router-dom": "__VERSION__",
+    "@tanstack/react-query": "__VERSION__",
+    "zustand": "__VERSION__",
+    "zod": "__VERSION__",
+    "react-hook-form": "__VERSION__",
+    "@hookform/resolvers": "__VERSION__",
+    "tailwind-merge": "__VERSION__",
+    "clsx": "__VERSION__",
+    "class-variance-authority": "__VERSION__",
+    "lucide-react": "__VERSION__",
+    "sonner": "__VERSION__"
+  },
+  "devDependencies": {
+    "typescript": "^5",
+    "@types/react": "__VERSION__",
+    "@types/react-dom": "__VERSION__",
+    "vite": "__VERSION__",
+    "@vitejs/plugin-react": "__VERSION__",
+    "tailwindcss": "__VERSION__",
+    "autoprefixer": "__VERSION__",
+    "postcss": "__VERSION__",
+    "vitest": "__VERSION__",
+    "@testing-library/react": "__VERSION__",
+    "@testing-library/jest-dom": "__VERSION__",
+    "jsdom": "__VERSION__"
+  }
+}
