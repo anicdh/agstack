@@ -41,9 +41,10 @@ You get a **senior-level AI teammate from day one**. Not a blank project with a 
 ### Setup
 
 ```bash
-# 1. Clone the starter kit
+# 1. Clone the starter kit and start fresh
 git clone https://github.com/anicdh/agstack.git my-project
 cd my-project
+rm -rf .git && git init
 
 # 2. Open in Claude Code and run the setup wizard
 claude
