@@ -215,8 +215,11 @@ Then tell the user (in their preferred language):
 
 > **Setup complete! Project is up and running.**
 >
+> If you have existing research, prototypes, or reference code, drop them in the `materials/` folder now.
+> Claude will review them during `/office-hours` so you don't have to explain everything from scratch.
+>
 > Next step: run `/office-hours` to plan your product.
-> gStack will ask about your product vision, target users, and core features,
+> gStack will scan `materials/` and ask about your product vision, target users, and core features,
 > then generate a PRD. From there:
 >
 > `/office-hours` → `/plan-ceo-review` → `/plan-eng-review` → **`/plan-sprint`**

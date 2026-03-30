@@ -91,6 +91,7 @@ When Claude builds a new feature, it reads these files first — so it uses the 
 ├── api/               NestJS REST API (:3000)
 ├── jobs/              Rust async job worker
 ├── shared/            Shared TypeScript types & Zod schemas
+├── materials/         Your existing research, prototypes, reference code
 ├── agile/             Backlog, sprints, velocity tracking
 ├── docs/              PRD, UX guide, API docs, ADRs
 ├── scripts/           Setup and maintenance scripts
