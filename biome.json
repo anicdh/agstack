@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.0.0/schema.json",
   "vcs": {
     "enabled": true,
     "clientKind": "git",
@@ -14,8 +14,13 @@
     "lineWidth": 100,
     "lineEnding": "lf"
   },
-  "organizeImports": {
-    "enabled": true
+  "assist": {
+    "enabled": true,
+    "actions": {
+      "source": {
+        "organizeImports": "on"
+      }
+    }
   },
   "javascript": {
     "formatter": {
@@ -25,9 +30,6 @@
       "arrowParentheses": "always",
       "bracketSpacing": true,
       "bracketSameLine": false
-    },
-    "parser": {
-      "unsafeParameterDecoratorsEnabled": true
     }
   },
   "json": {
@@ -94,7 +96,7 @@
   },
   "overrides": [
     {
-      "include": ["frontend/**"],
+      "includes": ["frontend/**"],
       "linter": {
         "rules": {
           "style": {
@@ -104,7 +106,7 @@
       }
     },
     {
-      "include": ["api/**"],
+      "includes": ["api/**"],
       "linter": {
         "rules": {
           "a11y": {
@@ -117,7 +119,7 @@
       }
     },
     {
-      "include": ["**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/__tests__/**"],
+      "includes": ["**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/__tests__/**"],
       "linter": {
         "rules": {
           "suspicious": {
