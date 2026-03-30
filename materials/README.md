@@ -25,6 +25,10 @@ During `/office-hours`, Claude scans this folder to:
 
 You can also reference these files later during development — just point Claude to `materials/[filename]`.
 
+## Important: materials are local only
+
+This folder is gitignored — nothing you put here gets committed or pushed to the repo. Your research, prototypes, and reference code stay on your machine only. This keeps the repo clean and avoids accidentally pushing large files or sensitive data.
+
 ## Organization (optional)
 
 You can organize into subfolders if you have a lot of files:

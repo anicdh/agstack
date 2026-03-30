@@ -40,3 +40,8 @@ api/prisma/*.db
 
 # Docker
 docker-compose.override.yml
+
+# Materials — local only, not committed to repo
+materials/*
+!materials/README.md
+!materials/.gitkeep
