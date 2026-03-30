@@ -129,21 +129,22 @@ for file in "$UI_DIR"/*.tsx; do
     unknown_count=$((unknown_count + 1))
   fi
 
-  # Generate entry
-  entry="### $display_name
-- **Import**: \`import { $display_name } from \"@/components/ui/$filename\"\`
-- **Use when**: $use_when
-- **Key props**: \`$key_props\`
-"
+  # Generate entry lines (avoid multiline strings in awk -v)
+  line1="### $display_name"
+  line2="- **Import**: \`import { $display_name } from \"@/components/ui/$filename\"\`"
+  line3="- **Use when**: $use_when"
+  line4="- **Key props**: \`$key_props\`"
 
   # Insert before the Component Decision Map section
-  # Uses awk instead of sed to avoid macOS sed multiline escaping issues
+  # Pass each line separately to avoid awk "newline in string" error
   if grep -q "^## Component Decision Map" "$CATALOG"; then
-    awk -v entry="$entry" '/^## Component Decision Map/ { print entry; print ""; } { print }' "$CATALOG" > "$CATALOG.tmp"
+    awk -v l1="$line1" -v l2="$line2" -v l3="$line3" -v l4="$line4" \
+      '/^## Component Decision Map/ { print l1; print l2; print l3; print l4; print ""; } { print }' \
+      "$CATALOG" > "$CATALOG.tmp"
     mv "$CATALOG.tmp" "$CATALOG"
   else
     # Fallback: append to end
-    printf "\n%s\n" "$entry" >> "$CATALOG"
+    printf "\n%s\n%s\n%s\n%s\n" "$line1" "$line2" "$line3" "$line4" >> "$CATALOG"
   fi
 
   echo "  Added: $display_name ($filename.tsx)"
