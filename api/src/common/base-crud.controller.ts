@@ -40,7 +40,7 @@ import {
 } from "@nestjs/common";
 import { BaseResponseDto } from "./dto/base-response.dto";
 import { PaginationDto } from "./dto/pagination.dto";
-import type { BaseCrudService } from "./base-crud.service";
+import { BaseCrudService } from "./base-crud.service";
 
 export abstract class BaseCrudController<
   TEntity,

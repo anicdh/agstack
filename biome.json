@@ -113,6 +113,9 @@
           "a11y": {
             "recommended": false
           },
+          "style": {
+            "useImportType": "off"
+          },
           "suspicious": {
             "noConsole": "off"
           }
