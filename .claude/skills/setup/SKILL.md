@@ -142,12 +142,24 @@ Then:
    - vitest, @testing-library/react, @testing-library/jest-dom (devDeps)
    - Scripts: dev, build, preview, test, test:watch, typecheck, lint
 
-   **CRITICAL — Version pinning:**
-   DO NOT hardcode version numbers. Instead, use `"*"` for all dependencies,
-   then IMMEDIATELY run `npm install` which will resolve to latest compatible versions,
-   and commit the resulting package-lock.json. Alternatively, before writing package.json,
-   run `npm view <package-name> version` for each dependency to get the REAL latest version.
-   NEVER guess or hallucinate version numbers — this causes ETARGET install failures.
+   **CRITICAL — Version resolution (DO NOT hallucinate versions):**
+   Before writing ANY package.json, run `npm view <package> version` for EVERY
+   dependency to get the REAL latest version. Write the exact version with `^` prefix.
+
+   DO NOT use `"*"` — it can pull bleeding-edge major versions (e.g. TypeScript 6)
+   that break ecosystem compatibility (ts-jest, NestJS, Vite plugins, etc.).
+   DO NOT guess version numbers from training data — they may not exist (ETARGET).
+
+   Example workflow:
+   ```bash
+   npm view react version          # → 19.1.0 → use "^19.1.0"
+   npm view typescript version     # → 5.9.3  → use "^5.9.3" (NOT 6.x — ecosystem not ready)
+   npm view @nestjs/core version   # → 11.0.1 → use "^11.0.1"
+   ```
+
+   Special case — TypeScript: ALWAYS use TypeScript 5.x (`"^5"`). TypeScript 6
+   has breaking changes and many tools (ts-jest, ts-node, NestJS CLI) do not
+   support it yet. This will change — check ecosystem readiness before upgrading.
 
 4. Generate `api/package.json` with dependencies:
    - @nestjs/core, @nestjs/common, @nestjs/platform-express
@@ -157,7 +169,7 @@ Then:
    - bullmq
    - Scripts: dev (start:dev), build, start:prod, test, test:e2e, typecheck, lint
    - Also generate `api/nest-cli.json`
-   - Same version pinning rule as frontend: use `"*"` or `npm view` first.
+   - Same version resolution rule: `npm view` first, NEVER guess.
 5. Generate `shared/package.json` for workspace module resolution:
    ```json
    {
