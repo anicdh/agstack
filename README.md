@@ -38,7 +38,17 @@ You get a **senior-level AI teammate from day one**. Not a blank project with a 
 - [Docker](https://docs.docker.com/get-docker/) and Docker Compose
 - Node.js 20+ and Rust toolchain (`rustup`)
 
-### Setup
+### Setup (One-liner)
+
+Paste this into your terminal:
+
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/anicdh/agstack/main/scripts/bootstrap.sh) my-project && cd my-project && claude -p '/setup'
+```
+
+That's it. Clone → init → setup wizard → running project.
+
+### Setup (Step by step)
 
 ```bash
 # 1. Clone the starter kit and start fresh
