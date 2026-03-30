@@ -208,13 +208,20 @@ Then ask user to run:
 ```bash
 docker-compose up -d
 docker compose ps                       # verify both services are running
+
+# Prisma reads .env from its own directory (api/), but .env lives at root.
+# Symlink it so Prisma can find DATABASE_URL:
+cd api && ln -sf ../.env .env
+
 npx prisma migrate dev --name init      # from api/ folder
 ```
 
 If prisma migrate fails, check:
-1. Is `.env` present in root? (`cp .env.example .env` if not)
-2. Does DATABASE_URL in `.env` match docker-compose credentials?
-3. Is postgres actually ready? (`docker compose logs postgres | tail -5`)
+1. `P1012: Environment variable not found: DATABASE_URL`?
+   → Prisma reads `.env` from `api/`, not root. Symlink: `cd api && ln -sf ../.env .env`
+2. Is `.env` present in root? (`cp .env.example .env` if not)
+3. Does DATABASE_URL in `.env` match docker-compose credentials?
+4. Is postgres actually ready? (`docker compose logs postgres | tail -5`)
 4. Prisma 7 error "datasource property `url` is no longer supported"?
    → Follow the Prisma 7 compatibility steps above (remove url from schema, create prisma.config.ts)
 
