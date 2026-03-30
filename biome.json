@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.0.0/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.4.10/schema.json",
   "vcs": {
     "enabled": true,
     "clientKind": "git",
@@ -43,7 +43,6 @@
       "recommended": true,
       "a11y": {
         "recommended": true,
-        "noBlankTarget": "error",
         "useAltText": "error",
         "useHtmlLang": "error",
         "useValidAnchor": "error"
@@ -55,7 +54,8 @@
           "options": { "maxAllowedComplexity": 15 }
         },
         "noForEach": "warn",
-        "useFlatMap": "error"
+        "useFlatMap": "error",
+        "useLiteralKeys": "off"
       },
       "correctness": {
         "recommended": true,
@@ -73,7 +73,8 @@
       },
       "security": {
         "recommended": true,
-        "noDangerouslySetInnerHtml": "error"
+        "noDangerouslySetInnerHtml": "error",
+        "noBlankTarget": "error"
       },
       "style": {
         "recommended": true,
@@ -87,7 +88,7 @@
       },
       "suspicious": {
         "recommended": true,
-        "noConsoleLog": "warn",
+        "noConsole": { "level": "warn", "options": { "allow": ["log"] } },
         "noDoubleEquals": "error",
         "noExplicitAny": "error",
         "noImplicitAnyLet": "error"
@@ -113,7 +114,7 @@
             "recommended": false
           },
           "suspicious": {
-            "noConsoleLog": "off"
+            "noConsole": "off"
           }
         }
       }
@@ -124,7 +125,7 @@
         "rules": {
           "suspicious": {
             "noExplicitAny": "off",
-            "noConsoleLog": "off"
+            "noConsole": "off"
           }
         }
       }
