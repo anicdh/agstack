@@ -30,8 +30,8 @@ export class PageMeta {
 
 export class BaseResponseDto<T> {
   data: T;
-  meta?: PageMeta;
-  error?: string;
+  meta?: PageMeta | undefined;
+  error?: string | undefined;
 
   private constructor(data: T, meta?: PageMeta, error?: string) {
     this.data = data;

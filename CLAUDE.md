@@ -51,6 +51,8 @@ Frontend is React SPA, backend is NestJS REST API, heavy jobs processed by Rust 
 - Linter + Formatter: **Biome** (config: `/biome.json`) — run `npx @biomejs/biome check --write .`
 - Git hooks: **Lefthook** (config: `/lefthook.yml`) — pre-commit: biome + typecheck + clippy, pre-push: build
 - TypeScript: **Maximum strict** — see `tsconfig.json`, NEVER use `any` or `as` cast unless there is a comment explaining
+- `exactOptionalPropertyTypes: true` — optional class properties MUST include `| undefined` (e.g., `meta?: PageMeta | undefined`, NOT `meta?: PageMeta`)
+- `noPropertyAccessFromIndexSignature: true` — use bracket notation for index signatures (e.g., `process.env["PORT"]`, NOT `process.env.PORT`)
 - Rust: **Clippy pedantic** + **rustfmt** (config: `jobs/.clippy.toml`, `jobs/rustfmt.toml`)
 - Commit: conventional commits — `type(scope): description` (max 72 chars)
 
