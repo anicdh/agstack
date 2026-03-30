@@ -1,0 +1,81 @@
+# Lefthook — Git hooks for monorepo
+# Install: npm i -D lefthook && npx lefthook install
+
+pre-commit:
+  parallel: true
+  commands:
+    biome-check:
+      glob: "*.{ts,tsx,js,jsx,json}"
+      run: npx @biomejs/biome check --no-errors-on-unmatched {staged_files}
+      stage_fixed: true
+      skip:
+        - merge
+        - rebase
+
+    frontend-typecheck:
+      root: "frontend/"
+      glob: "*.{ts,tsx}"
+      run: cd frontend && npx tsc --noEmit
+      skip:
+        - merge
+        - rebase
+
+    api-typecheck:
+      root: "api/"
+      glob: "*.{ts}"
+      run: cd api && npx tsc --noEmit
+      skip:
+        - merge
+        - rebase
+
+    rust-fmt:
+      root: "jobs/"
+      glob: "*.rs"
+      run: cd jobs && cargo fmt --check
+      skip:
+        - merge
+        - rebase
+
+    rust-clippy:
+      root: "jobs/"
+      glob: "*.rs"
+      run: cd jobs && cargo clippy --all-targets --all-features -- -D warnings
+      skip:
+        - merge
+        - rebase
+
+pre-push:
+  parallel: true
+  commands:
+    frontend-build:
+      root: "frontend/"
+      run: cd frontend && npm run build
+      skip:
+        - merge
+        - rebase
+
+    api-build:
+      root: "api/"
+      run: cd api && npm run build
+      skip:
+        - merge
+        - rebase
+
+    rust-build:
+      root: "jobs/"
+      run: cd jobs && cargo build
+      skip:
+        - merge
+        - rebase
+
+commit-msg:
+  commands:
+    conventional-commit:
+      run: |
+        MSG=$(head -1 {1})
+        if ! echo "$MSG" | grep -qE "^(feat|fix|refactor|docs|chore|test|perf|ci|build|style|revert)(\(.+\))?: .{1,72}$"; then
+          echo "Commit message must follow: type(scope): description"
+          echo "Types: feat, fix, refactor, docs, chore, test, perf, ci, build, style, revert"
+          echo "Got: $MSG"
+          exit 1
+        fi

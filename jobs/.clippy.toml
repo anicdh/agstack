@@ -1,0 +1,25 @@
+# Clippy configuration — Rust job worker
+# Docs: https://doc.rust-lang.org/clippy/configuration.html
+
+# Cognitive complexity per function
+cognitive-complexity-threshold = 25
+
+# Max function params before triggering too_many_arguments
+too-many-arguments-threshold = 7
+
+# Max lines per function
+too-many-lines-threshold = 100
+
+# Max bools in struct / function params
+max-struct-bools = 3
+max-fn-params-bools = 3
+
+# Disallow ambiguous single-char names
+disallowed-names = ["l", "O", "I"]
+
+# Allow expect/unwrap in tests only
+allow-expect-in-tests = true
+allow-unwrap-in-tests = true
+
+# Enum variant naming
+enum-variant-name-threshold = 3
