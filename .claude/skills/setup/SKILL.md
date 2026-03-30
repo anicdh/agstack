@@ -18,14 +18,14 @@ Phase B is where the real product decisions happen.
 
 **CRITICAL — DO NOT regenerate boilerplate code. COPY + REPLACE only.**
 
-The starter kit ships with EVERYTHING pre-built and tested. /setup should NOT
-write any file from scratch. The ONLY things /setup does:
+The starter kit ships with EVERYTHING pre-built and tested, including pinned
+dependency versions. /setup should NOT write any file from scratch.
+The ONLY things /setup does:
 1. Copy `.template` files → real files (package.json.template → package.json)
 2. Replace `__PROJECT_NAME__` placeholder with actual project name
-3. Replace `__VERSION__` placeholder with real versions from `npm view`
-4. Install Shadcn components (npm-installed, not in boilerplate)
-5. Fix Sonner next-themes import (Shadcn bug)
-6. Run prisma migrate
+3. Install Shadcn components (npm-installed, not in boilerplate)
+4. Fix Sonner next-themes import (Shadcn bug)
+5. Run prisma migrate
 
 **Pre-built files that MUST NOT be regenerated (saves ~5000 tokens each run):**
 - API: main.ts, app.module.ts, prisma.service.ts, base-crud.service/controller,
@@ -117,38 +117,22 @@ Then:
 1. Update `CLAUDE.md` — replace `[Project Name]` with actual name, replace `[Brief description]` with actual description
 
 2. **Create package.json files from templates (DO NOT write from scratch):**
-   The boilerplate ships `.template` files with the correct structure, scripts, and
-   dependency list. You only need to:
-   a. Copy template → real file
-   b. Replace `__PROJECT_NAME__` with actual project name
-   c. Replace `__VERSION__` with real versions from `npm view`
+   The boilerplate ships `.template` files with ALL versions already pinned.
+   You only need to copy and replace `__PROJECT_NAME__`:
 
-   **Workflow:**
    ```bash
-   # 1. Get all unique package names from templates
-   grep -h '"__VERSION__"' package.json.template frontend/package.json.template api/package.json.template \
-     | sed 's/.*"\([^"]*\)": "__VERSION__".*/\1/' | sort -u
-
-   # 2. For EACH package, get the real latest version:
-   npm view react version           # → use "^<result>"
-   npm view @nestjs/core version    # → use "^<result>"
-   # ... repeat for all packages
-
-   # 3. Copy templates and replace placeholders:
+   # Copy templates → real files
    cp package.json.template package.json
    cp frontend/package.json.template frontend/package.json
    cp api/package.json.template api/package.json
 
-   # 4. Replace __PROJECT_NAME__ and each __VERSION__ with real values
-   # Use sed or write the file directly with resolved values
+   # Replace project name placeholder in all three
+   sed -i "s/__PROJECT_NAME__/<actual-project-name>/g" package.json frontend/package.json api/package.json
    ```
 
-   **CRITICAL — Version pinning rules:**
-   - TypeScript: template already has `"^5"` — DO NOT change to 6.x (ecosystem not ready)
-   - Prisma: template already has `"^6"` — DO NOT change to 7.x (breaking changes)
-   - All other `__VERSION__`: resolve via `npm view <pkg> version`, use `"^<result>"`
-   - DO NOT use `"*"` — it pulls bleeding-edge versions that break things
-   - DO NOT guess versions from training data — always `npm view` first
+   That's it. All dependency versions are pre-resolved and tested in the templates.
+   DO NOT run `npm view` or change any version numbers.
+   Version upgrades are managed centrally through agStack releases.
 
 3. **Create shared/package.json** (no template needed — it's tiny):
    ```json
@@ -162,10 +146,11 @@ Then:
    ```
 
 4. **Set up .env:**
-   `.env.example` already exists in the boilerplate. Only update the `POSTGRES_DB` value
-   to match the project name:
+   `.env.example` and `docker-compose.yml` already exist with `__PROJECT_NAME__` placeholder.
+   Replace it:
    ```bash
-   sed -i "s/POSTGRES_DB=.*/POSTGRES_DB=<project-name>/" .env.example
+   sed -i "s/__PROJECT_NAME__/<actual-project-name>/g" .env.example docker-compose.yml \
+     frontend/index.html frontend/src/app/layout.tsx frontend/src/pages/home.tsx
    ```
    Then auto-copy `.env.example` → `.env` if `.env` does not exist.
 
@@ -247,28 +232,23 @@ Frontend (all pre-built):
 - `frontend/src/styles/globals.css` — Tailwind base + CSS variables
 - `frontend/src/lib/form-utils.ts`, `api-client.ts`, all hooks, all features
 
-**The ONLY thing /setup does here is:**
+**The ONLY things /setup does here are:**
 
-1. **Replace `__PROJECT_NAME__` placeholder** in pre-existing files:
-   ```bash
-   # Replace in all files that use the placeholder
-   find frontend/index.html frontend/src/app/layout.tsx frontend/src/pages/home.tsx \
-     -exec sed -i 's/__PROJECT_NAME__/<actual-project-name>/g' {} +
-   ```
+(`__PROJECT_NAME__` replacement is already done in Step 1 via the sed command.)
 
-2. **Install Shadcn components** (these are npm-installed, not in boilerplate):
+1. **Install Shadcn components** (these are npm-installed, not in boilerplate):
    ```bash
    cd frontend && npx shadcn@latest add button input label separator sonner
    ```
 
-3. **Fix Sonner component** — Shadcn's default `sonner.tsx` imports `useTheme` from `next-themes`
+2. **Fix Sonner component** — Shadcn's default `sonner.tsx` imports `useTheme` from `next-themes`
    which does NOT exist in Vite projects. After installing, edit `frontend/src/components/ui/sonner.tsx`:
    - Remove the `import { useTheme } from "next-themes"` line
    - Remove the `const { theme = "system" } = useTheme()` line
    - Replace `theme={theme as ToasterProps["theme"]}` with `theme="light"`
    This is a known Shadcn issue — their default template assumes Next.js.
 
-4. **Run `bash scripts/sync-components.sh`** to update COMPONENTS.md
+3. **Run `bash scripts/sync-components.sh`** to update COMPONENTS.md
 
 Ask user to run `npm run dev` and verify both frontend (:5173) and API (:3000) are working.
 
