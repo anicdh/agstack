@@ -24,13 +24,13 @@ import type { PageMeta } from "@/types/api";
 interface UsePaginatedQueryOptions<T> {
   queryKey: readonly unknown[];
   path: string;
-  limit?: number;
-  initialPage?: number;
-  extraParams?: Record<string, string | number | boolean | undefined>;
-  queryOptions?: Omit<UseQueryOptions<PaginatedResponse<T>>, "queryKey" | "queryFn">;
+  limit?: number | undefined;
+  initialPage?: number | undefined;
+  extraParams?: Record<string, unknown> | undefined;
+  queryOptions?: Omit<UseQueryOptions<PaginatedResponse<T>>, "queryKey" | "queryFn"> | undefined;
 }
 
-interface UsePaginatedQueryResult<T> {
+export interface UsePaginatedQueryResult<T> {
   data: T[];
   meta: PageMeta | undefined;
   page: number;

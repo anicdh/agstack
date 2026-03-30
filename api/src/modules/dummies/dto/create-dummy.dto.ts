@@ -28,29 +28,29 @@ export class CreateDummyDto {
   @IsString()
   @MinLength(1)
   @MaxLength(100)
-  name: string;
+  name!: string;
 
   @ApiProperty({ example: "dummy@example.com" })
   @IsEmail()
-  email: string;
+  email!: string;
 
   @ApiPropertyOptional({ enum: DummyStatus, default: DummyStatus.ACTIVE })
   @IsOptional()
   @IsEnum(DummyStatus)
-  status?: DummyStatus = DummyStatus.ACTIVE;
+  status?: DummyStatus | undefined = DummyStatus.ACTIVE;
 
   @ApiProperty({ enum: DummyCategory })
   @IsEnum(DummyCategory)
-  category: DummyCategory;
+  category!: DummyCategory;
 
   @ApiPropertyOptional({ example: "A sample dummy entry for demonstration" })
   @IsOptional()
   @IsString()
   @MaxLength(500)
-  description?: string | null;
+  description?: string | null | undefined;
 
   @ApiProperty({ example: "This is a secret note" })
   @IsString()
   @MaxLength(200)
-  secretNote: string;
+  secretNote!: string;
 }

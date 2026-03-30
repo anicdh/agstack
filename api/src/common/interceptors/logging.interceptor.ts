@@ -24,7 +24,7 @@ export class LoggingInterceptor implements NestInterceptor {
     const request = context.switchToHttp().getRequest<{
       method: string;
       url: string;
-      user?: { id: string };
+      user?: { id: string } | undefined;
     }>();
     const { method, url } = request;
     const userId = request.user?.id ?? "anonymous";

@@ -12,16 +12,19 @@
  */
 
 import {
+  Body,
   Controller,
   Get,
   Param,
-  Query,
+  ParseUUIDPipe,
+  Patch,
+  Post,
 } from "@nestjs/common";
-import { ApiTags, ApiOperation } from "@nestjs/swagger";
+import { ApiTags, ApiOperation, ApiBody } from "@nestjs/swagger";
 import { BaseCrudController } from "@/common/base-crud.controller";
 import { DummiesService } from "./dummies.service";
-import type { CreateDummyDto } from "./dto/create-dummy.dto";
-import type { UpdateDummyDto } from "./dto/update-dummy.dto";
+import { CreateDummyDto } from "./dto/create-dummy.dto";
+import { UpdateDummyDto } from "./dto/update-dummy.dto";
 import { BaseResponseDto } from "@/common/dto/base-response.dto";
 
 // Type representing public dummy data
@@ -43,6 +46,29 @@ interface DummyPublic {
 export class DummiesController extends BaseCrudController<DummyPublic, CreateDummyDto, UpdateDummyDto> {
   constructor(private readonly dummiesService: DummiesService) {
     super(dummiesService);
+  }
+
+  // ─── Override CRUD for Swagger DTO discovery ───────────────
+  // NestJS Swagger cannot resolve generic types from BaseCrudController.
+  // Override create/update with explicit DTO class so Swagger shows request body schema.
+
+  @Post()
+  @ApiOperation({ summary: "Create a new dummy" })
+  @ApiBody({ type: CreateDummyDto })
+  override async create(
+    @Body() dto: CreateDummyDto,
+  ): Promise<BaseResponseDto<DummyPublic>> {
+    return super.create(dto);
+  }
+
+  @Patch(":id")
+  @ApiOperation({ summary: "Update a dummy" })
+  @ApiBody({ type: UpdateDummyDto })
+  override async update(
+    @Param("id", ParseUUIDPipe) id: string,
+    @Body() dto: UpdateDummyDto,
+  ): Promise<BaseResponseDto<DummyPublic>> {
+    return super.update(id, dto);
   }
 
   // ─── Custom endpoints (beyond standard CRUD) ──────────────

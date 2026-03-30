@@ -21,6 +21,11 @@
  *
  * NOTE: This controller has NO decorators (@Controller, @ApiTags).
  * Subclass MUST add decorators + Guards.
+ *
+ * SWAGGER: Generic types are erased at runtime — NestJS Swagger plugin
+ * cannot discover DTO schemas from BaseCrudController. Subclass MUST
+ * override create() and update() with explicit DTO class + @ApiBody()
+ * so Swagger shows the request body schema. See DummiesController.
  */
 
 import {

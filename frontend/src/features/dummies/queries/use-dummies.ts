@@ -21,12 +21,12 @@ import type { DummyPublic, CreateDummyDto, UpdateDummyDto, DummyFilters } from "
 
 // ─── List (paginated) ─────────────────────────────────────────
 
-export function useDummies(filters?: DummyFilters) {
+export function useDummies(filters?: DummyFilters | undefined) {
   return usePaginatedQuery<DummyPublic>({
-    queryKey: queryKeys.dummies.list(filters),
+    queryKey: queryKeys.dummies.list(filters as Record<string, unknown> | undefined),
     path: "/dummies",
     limit: 20,
-    extraParams: filters,
+    extraParams: filters as Record<string, string | number | boolean | undefined> | undefined,
   });
 }
 

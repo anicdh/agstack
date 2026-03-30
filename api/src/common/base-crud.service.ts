@@ -33,7 +33,8 @@ interface PrismaDelegate {
   count(args?: unknown): Promise<number>;
 }
 
-interface PrismaClient {
+// PrismaClient with index signature for dynamic model access
+interface PrismaClientLike {
   [key: string]: PrismaDelegate;
 }
 
@@ -44,15 +45,22 @@ export abstract class BaseCrudService<
 > {
   protected readonly logger: Logger;
 
+  // Internal typed reference for dynamic model delegate access
+  // PrismaService extends PrismaClient which has model accessors (e.g. prisma.dummy)
+  // but no index signature, so we cast once here for bracket-notation access.
+  private readonly _prismaClient: PrismaClientLike;
+
   constructor(
-    protected readonly prisma: PrismaClient,
+    prisma: unknown,
     protected readonly modelName: string,
   ) {
+    // Cast to indexed type — PrismaService has dynamic model delegates at runtime
+    this._prismaClient = prisma as PrismaClientLike;
     this.logger = new Logger(`${this.constructor.name}`);
   }
 
   private get delegate(): PrismaDelegate {
-    return this.prisma[this.modelName] as PrismaDelegate;
+    return this._prismaClient[this.modelName] as PrismaDelegate;
   }
 
   async findAll(

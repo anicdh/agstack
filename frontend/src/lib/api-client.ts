@@ -12,7 +12,8 @@
 
 import type { BaseResponse, PageMeta } from "@/types/api";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000/api/v1";
+const API_BASE_URL =
+  (import.meta.env["VITE_API_URL"] as string | undefined) ?? "http://localhost:3000/api/v1";
 
 // ─── Error Types ──────────────────────────────────────────────
 
@@ -59,7 +60,7 @@ export function getAccessToken(): string | null {
 // ─── Core Request ─────────────────────────────────────────────
 
 interface RequestOptions extends Omit<RequestInit, "body"> {
-  params?: Record<string, string | number | boolean | undefined>;
+  params?: Record<string, string | number | boolean | undefined> | undefined;
   body?: unknown;
 }
 
@@ -93,7 +94,7 @@ async function request<T>(
   const response = await fetch(url.toString(), {
     method,
     headers,
-    body: body ? JSON.stringify(body) : undefined,
+    body: body ? JSON.stringify(body) : null,
     ...rest,
   });
 
@@ -156,7 +157,7 @@ export async function fetchPaginated<T>(
   path: string,
   page: number,
   limit: number,
-  extraParams?: Record<string, string | number | boolean | undefined>,
+  extraParams?: Record<string, unknown>,
 ): Promise<PaginatedResponse<T>> {
   const url = new URL(`${API_BASE_URL}${path}`);
   url.searchParams.set("page", String(page));

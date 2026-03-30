@@ -1,0 +1,41 @@
+// Prisma Schema — Primary database schema for the application.
+//
+// THIS IS A REFERENCE IMPLEMENTATION for the boilerplate.
+// The Dummy model below demonstrates the coding conventions.
+// Run `npm run scaffold:clean` to remove Dummies and start fresh.
+//
+// After editing this file:
+//   npx prisma migrate dev --name <name>
+//   npx prisma generate
+//
+// DO NOT edit migration files after creation.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Reference Model ────────────────────────────────────────
+
+/// Dummy — reference model demonstrating all conventions.
+/// Every model MUST have: id, createdAt, updatedAt.
+/// Use @unique for business-key fields (email, slug, etc.).
+model Dummy {
+  id          String   @id @default(uuid())
+  name        String   @db.VarChar(100)
+  email       String   @unique @db.VarChar(255)
+  status      String   @default("ACTIVE") @db.VarChar(20)
+  category    String   @db.VarChar(20)
+  description String?  @db.VarChar(500)
+  secretNote  String   @db.VarChar(200)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([status])
+  @@index([category])
+  @@map("dummies")
+}

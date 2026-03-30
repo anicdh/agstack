@@ -65,7 +65,7 @@ Frontend is React SPA, backend is NestJS REST API, heavy jobs processed by Rust 
 **Structure:**
 - Feature-based: `/src/features/[name]/{components,hooks,queries,stores,types}/`
 - Shared components: `/src/components/shared/` — wrapper around Shadcn, DO NOT modify `/components/ui/`
-- Path alias: `@/` → `src/`
+- Path alias: `@/` → `src/`, `@shared/` → `../shared/`
 
 **React patterns:**
 - Functional components only, DO NOT use class components
@@ -168,6 +168,8 @@ Frontend is React SPA, backend is NestJS REST API, heavy jobs processed by Rust 
 
 **Shared types:**
 - TypeScript: `/shared/types/` — Zod schemas + inferred types
+- Frontend imports: use `@shared/types/...` alias — DO NOT use relative paths like `../../../../shared/`
+- API imports: use relative `../../shared/` (NestJS module resolution)
 - Rust: mirror manually in `jobs/src/types/` — MUST update when shared types change
 - Job type constants: `/shared/constants/job-types.ts` → mirror `jobs/src/jobs/mod.rs`
 
@@ -210,6 +212,7 @@ Frontend is React SPA, backend is NestJS REST API, heavy jobs processed by Rust 
 
 | Need | Already exists at | DO NOT write yourself |
 |----------|-------------|---------------|
+| Prisma client | `common/prisma.service.ts` → `PrismaService` (inject via DI) | Create PrismaClient manually |
 | CRUD service | `common/base-crud.service.ts` → extend `BaseCrudService` | Copy-paste findAll/create/update/delete |
 | CRUD controller | `common/base-crud.controller.ts` → extend `BaseCrudController` | Copy-paste GET/POST/PATCH/DELETE |
 | Response format | `common/dto/base-response.dto.ts` → `BaseResponseDto.ok/paginated/created` | Return raw data |
@@ -219,10 +222,12 @@ Frontend is React SPA, backend is NestJS REST API, heavy jobs processed by Rust 
 | Response wrapping | `common/interceptors/transform.interceptor.ts` → auto-wrap | Manual wrap per endpoint |
 
 **When creating a new module:**
-1. Service extends `BaseCrudService` — override only when custom logic needed
-2. Controller extends `BaseCrudController` — add custom endpoints alongside CRUD
-3. DTOs use `PaginationDto` for list endpoints
-4. Responses use `BaseResponseDto` — DO NOT return raw objects
+1. Add `PrismaService` to module providers (or import a shared PrismaModule)
+2. Service extends `BaseCrudService` — inject `PrismaService`, pass to `super(prisma, "modelName")`
+3. Controller extends `BaseCrudController` — add custom endpoints alongside CRUD
+4. DTOs: use `!:` for required decorated fields, `?: T | undefined` for optional fields (`exactOptionalPropertyTypes`)
+5. DTOs use `PaginationDto` for list endpoints
+6. Responses use `BaseResponseDto` — DO NOT return raw objects
 
 ### Rust Jobs — Shared Code Map
 

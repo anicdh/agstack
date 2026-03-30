@@ -87,7 +87,7 @@ export function DummyList({ onEdit }: DummyListProps) {
           aria-label="Filter by category"
         >
           <option value="">All categories</option>
-          {Object.values(DummyCategory).map((cat) => (
+          {(Object.values(DummyCategory) as string[]).map((cat) => (
             <option key={cat} value={cat}>{cat}</option>
           ))}
         </select>

@@ -15,6 +15,7 @@ import {
   Logger,
 } from "@nestjs/common";
 import { BaseCrudService } from "@/common/base-crud.service";
+import { PrismaService } from "@/common/prisma.service";
 import type { CreateDummyDto } from "./dto/create-dummy.dto";
 import type { UpdateDummyDto } from "./dto/update-dummy.dto";
 
@@ -38,8 +39,7 @@ type DummyPublic = Omit<Dummy, "secretNote">;
 export class DummiesService extends BaseCrudService<DummyPublic, CreateDummyDto, UpdateDummyDto> {
   private readonly serviceLogger = new Logger(DummiesService.name);
 
-  constructor(private readonly prisma: any) {
-    // Pass Prisma client and model name to base class
+  constructor(private readonly prisma: PrismaService) {
     super(prisma, "dummy");
   }
 

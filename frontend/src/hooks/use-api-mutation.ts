@@ -22,14 +22,14 @@ import {
 
 interface UseApiMutationOptions<TData, TVariables> {
   mutationFn: (variables: TVariables) => Promise<TData>;
-  invalidateKeys?: readonly (readonly unknown[])[];
-  successMessage?: string;
-  onSuccess?: (data: TData, variables: TVariables) => void;
-  onError?: (error: Error, variables: TVariables) => void;
-  mutationOptions?: Omit<UseMutationOptions<TData, Error, TVariables>, "mutationFn">;
+  invalidateKeys?: readonly (readonly unknown[])[] | undefined;
+  successMessage?: string | undefined;
+  onSuccess?: ((data: TData, variables: TVariables) => void) | undefined;
+  onError?: ((error: Error, variables: TVariables) => void) | undefined;
+  mutationOptions?: Omit<UseMutationOptions<TData, Error, TVariables>, "mutationFn"> | undefined;
 }
 
-interface UseApiMutationResult<TData, TVariables> {
+export interface UseApiMutationResult<TData, TVariables> {
   mutate: (variables: TVariables) => void;
   mutateAsync: (variables: TVariables) => Promise<TData>;
   isPending: boolean;

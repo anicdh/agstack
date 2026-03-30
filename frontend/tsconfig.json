@@ -11,9 +11,10 @@
 
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@shared/*": ["../shared/*"]
     }
   },
-  "include": ["src/**/*", "vite-env.d.ts"],
+  "include": ["src/**/*", "vite-env.d.ts", "../shared/**/*"],
   "exclude": ["node_modules", "dist"]
 }

@@ -7,8 +7,8 @@
 
 export interface BaseResponse<T> {
   data: T;
-  meta?: PageMeta;
-  error?: string;
+  meta?: PageMeta | undefined;
+  error?: string | undefined;
 }
 
 export interface PageMeta {

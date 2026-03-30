@@ -10,12 +10,13 @@
  */
 
 import { Module } from "@nestjs/common";
+import { PrismaService } from "@/common/prisma.service";
 import { DummiesController } from "./dummies.controller";
 import { DummiesService } from "./dummies.service";
 
 @Module({
   controllers: [DummiesController],
-  providers: [DummiesService],
+  providers: [PrismaService, DummiesService],
   exports: [DummiesService], // Export if other modules need it
 })
 export class DummiesModule {}

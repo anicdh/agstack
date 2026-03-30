@@ -9,26 +9,26 @@
  * frontend-specific types (form state, UI state, filters, etc.)
  */
 
-// Re-export shared types
+// Re-export shared types — use @shared alias (configured in tsconfig paths)
 export type {
   Dummy,
   DummyPublic,
   CreateDummyDto,
   UpdateDummyDto,
-} from "../../../../shared/types/dummy";
+} from "@shared/types/dummy";
 export {
   DummyStatus,
   DummyCategory,
   createDummySchema,
   updateDummySchema,
-} from "../../../../shared/types/dummy";
+} from "@shared/types/dummy";
 
 // ─── Frontend-specific types ──────────────────────────────────
 
 export interface DummyFilters {
-  search?: string;
-  status?: string;
-  category?: string;
+  search?: string | undefined;
+  status?: string | undefined;
+  category?: string | undefined;
 }
 
 export interface DummyListState {
