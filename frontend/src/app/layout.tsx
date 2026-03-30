@@ -7,7 +7,7 @@
 
 import { Outlet } from "react-router-dom";
 
-export function Layout(): JSX.Element {
+export function Layout(): React.JSX.Element {
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b">

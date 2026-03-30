@@ -9,7 +9,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Layout } from "./layout";
 import { HomePage } from "@/pages/home";
 
-function NotFound(): JSX.Element {
+function NotFound(): React.JSX.Element {
   return (
     <div className="flex min-h-[50vh] flex-col items-center justify-center gap-4">
       <h1 className="text-4xl font-bold">404</h1>
@@ -21,7 +21,7 @@ function NotFound(): JSX.Element {
   );
 }
 
-export function Router(): JSX.Element {
+export function Router(): React.JSX.Element {
   return (
     <BrowserRouter>
       <Routes>

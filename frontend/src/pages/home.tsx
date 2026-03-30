@@ -4,7 +4,7 @@
  * Replace with actual dashboard/landing in Phase B.
  */
 
-export function HomePage(): JSX.Element {
+export function HomePage(): React.JSX.Element {
   return (
     <div className="flex flex-col items-center justify-center gap-6 py-16">
       <h1 className="text-4xl font-bold tracking-tight">__PROJECT_NAME__</h1>
