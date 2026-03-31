@@ -43,7 +43,7 @@ You get a **senior-level AI teammate from day one**. Not a blank project with a 
 Create your project folder, open Claude Code inside it, and paste this:
 
 ```
-git clone https://github.com/anicdh/agstack.git _tmp && cp -r _tmp/. . && rm -rf _tmp .git && git init && git add -A && git commit -m "init: scaffold from agStack" then run /setup
+git clone https://github.com/anicdh/agstack.git _tmp && cp -r _tmp/. . && rm -rf _tmp .git && git init && git add -A && git commit -m "init: scaffold from agStack" then read .claude/skills/setup/SKILL.md and follow its instructions
 ```
 
 Claude does the rest — installs dependencies, starts Docker, runs migrations, and gets your dev servers running.
