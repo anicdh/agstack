@@ -77,122 +77,42 @@ Frontend is React SPA, backend is NestJS REST API, heavy jobs processed by Rust 
 > - Every list/table → empty state with icon + message + CTA
 > - Every table → `overflow-x-auto` wrapper for mobile scroll
 
-**Structure:**
-- Feature-based: `/src/features/[name]/{components,hooks,queries,stores,types}/`
+- Feature-based structure: `/src/features/[name]/{components,hooks,queries,stores,types}/`
 - Shared components: `/src/components/shared/` — wrapper around Shadcn, DO NOT modify `/components/ui/`
 - Path alias: `@/` → `src/`, `@shared/` → `../shared/`
-
-**React patterns:**
-- Functional components only, DO NOT use class components
-- Custom hooks for reusable logic — prefix `use`, place in `hooks/`
-- Props: destructure in parameter, ALWAYS have TypeScript interface (not inline)
-- Early return for loading/error states before main render
-- Memoize expensive computations: `useMemo` for derived data, `useCallback` for handlers passed to children
-- DO NOT use `useEffect` for derived state — compute directly in render
-
-**State management:**
-- Zustand: 1 store per domain, max 2 levels nesting, use `immer` middleware if deep update needed
-- React Query: query keys = `[feature, action, params]` tuple, queries in `/features/[name]/queries/`
-- Server state in React Query, client state in Zustand — DO NOT mix
-
-**UI components (Shadcn/ui):**
-- **READ `frontend/src/components/ui/COMPONENTS.md` BEFORE writing any UI**
-- Use Shadcn components for ALL interactive elements — DO NOT write raw `<button>`, `<input>`, `<dialog>`, `<select>`
-- Install missing components: `npx shadcn@latest add <name>`
-- After installing → update COMPONENTS.md with the new entry
-- Wrappers in `@/components/shared/` — DO NOT modify `@/components/ui/`
-- Icons: use `lucide-react` only — DO NOT use emoji or other icon libraries
-
-**Styling:**
+- Shadcn for ALL interactive elements — DO NOT write raw `<button>`, `<input>`, `<dialog>`, `<select>`
+- Icons: `lucide-react` only — DO NOT use emoji or other icon libraries
 - Tailwind utility classes only — DO NOT write separate CSS files
-- Component variants: use `cva` (class-variance-authority) or Shadcn variant pattern
-- Responsive: mobile-first (`sm:`, `md:`, `lg:`)
-- Dark mode: use Tailwind `dark:` variant
-
-**Error handling:**
-- React Error Boundary wrap each route
-- React Query `onError` for API errors, display toast
-- Form validation: Zod schema + react-hook-form
+- Server state in React Query, client state in Zustand — DO NOT mix
+- See `.claude/agents/agent-frontend.md` for full checklist and anti-patterns
 
 ### Backend NestJS (`/api`)
 
-**Structure:**
 - 1 module = 1 feature domain: `/src/modules/[name]/{controller,service,dto,entity}/`
-- Common: `/src/common/{guards,interceptors,pipes,filters,decorators}/`
-- Config: `/src/config/` — each config in 1 file, validate with Zod
-
-**NestJS patterns:**
-- Controller: only receive request + return response, DO NOT contain business logic
-- Service: contain business logic, inject via constructor DI
-- DTO: class-validator decorators on each field, separate CreateDto / UpdateDto (use PartialType)
-- Response: wrap in `BaseResponseDto<T>` = `{ data: T, meta?: PageMeta, error?: string }`
-- Auth: Guards > Middleware — use `@UseGuards(JwtAuthGuard)` on controller/method
-
-**Database (Prisma):**
-- Schema: `/api/prisma/schema.prisma` — each model has `createdAt`, `updatedAt`
-- Migrations: `npx prisma migrate dev --name <name>` — DO NOT edit migration files after creation
-- Queries: use Prisma client in service, DO NOT write raw SQL except when performance critical
-- Relations: eager loading must be explicit via `include`, DO NOT lazy load
-- Transactions: `prisma.$transaction([])` for multi-table writes
-
-**Error handling:**
-- Custom exceptions: extend `HttpException` with specific error codes
-- Global exception filter: catch all → format `{ statusCode, error, message }`
-- Validation pipe: global `ValidationPipe({ whitelist: true, transform: true })`
-- DO NOT throw generic `Error()` — always use NestJS exceptions
-
-**Logging:**
-- Dev: NestJS built-in Logger, human-readable
-- Production: structured JSON, include `requestId`, `userId`, `duration`
+- Controller: only receive request + return response, NO business logic
+- Service: business logic, inject via constructor DI
+- DTO: class-validator decorators on each field, separate CreateDto / UpdateDto
+- Response: wrap in `BaseResponseDto<T>`, NEVER return raw objects
+- Auth: `@UseGuards(JwtAuthGuard)` on protected endpoints
+- Prisma: explicit `include` for relations, `$transaction` for multi-writes
 - DO NOT use `console.log` — use injected `Logger`
+- See `.claude/agents/agent-api.md` for full checklist and anti-patterns
 
 ### Rust Jobs (`/jobs`)
 
-**Structure:**
-- Each job type = 1 file: `src/jobs/{job_name}.rs`
-- Shared: `src/jobs/mod.rs` — registry, job type constants (mirror from `/shared/constants/`)
-- Config: `src/config.rs` — env vars via `envy` or manual
-- DB: `src/db.rs` — sqlx pool setup
-
-**Rust patterns:**
-- Error: custom `AppError` enum implement `thiserror::Error`, all functions return `Result<T, AppError>`
-- DO NOT use `.unwrap()` or `.expect()` in production code — only in tests
-- Async: Tokio runtime, `#[tokio::main]` at entry point
-- Serialization: `serde` derive on all structs, `#[serde(rename_all = "camelCase")]` for JSON compat with TypeScript
-- Cloning: prefer borrowing (`&T`) over cloning, use `Arc<T>` for shared ownership across tasks
-
-**Job processing:**
-- Dequeue: Redis BRPOP on `jobs:{type}` queue
-- Payload: deserialize JSON → typed struct, validate before process
-- Retry: max 3, exponential backoff `1s → 4s → 16s`, then → `jobs:dead:{type}`
-- Idempotent: each job must be safe to re-run — check before write
-
-**Logging:**
-- `tracing` crate with `tracing-subscriber`, structured JSON output
-- Each job log: `job_id`, `job_type`, `duration_ms`, `status` (success/failed/retried)
-- Span: wrap each job processing in `#[instrument]`
+- Each job type = 1 file: `src/jobs/{job_name}.rs`, implement `JobRunner` trait
+- Error: custom `AppError` enum, all functions return `Result<T, AppError>`, NO `.unwrap()` in production
+- Logging: `tracing` crate with `#[instrument]`, structured JSON
+- Retry: max 3, exponential backoff, then dead letter queue
+- See `.claude/agents/agent-jobs.md` for full checklist and anti-patterns
 
 ### Shared — All Stacks
 
-**Code quality rules:**
-- Functions < 50 lines — split if longer
-- Files < 300 lines — split module if longer
+- Functions < 50 lines, files < 300 lines — split if longer
 - DO NOT leave TODO/FIXME in code merged to main — create task in backlog
 - DO NOT commit commented-out code — delete or use feature flag
-- Naming: descriptive, DO NOT abbreviate except common conventions (id, url, db, api)
-
-**Shared types:**
-- TypeScript: `/shared/types/` — Zod schemas + inferred types
-- Frontend imports: use `@shared/types/...` alias — DO NOT use relative paths like `../../../../shared/`
-- API imports: use relative `../../shared/` (NestJS module resolution)
-- Rust: mirror manually in `jobs/src/types/` — MUST update when shared types change
+- Shared types: `/shared/types/` — Zod schemas + inferred types
 - Job type constants: `/shared/constants/job-types.ts` → mirror `jobs/src/jobs/mod.rs`
-
-**Testing:**
-- Frontend: Vitest + React Testing Library for unit/integration
-- API: Jest + supertest for e2e, Jest for unit
-- Rust: `#[cfg(test)]` module in each file, `tokio::test` for async
-- Test all happy paths + at least 1 error case per function
 
 ## Reuse Map — MUST read before writing new code
 
@@ -215,14 +135,6 @@ Frontend is React SPA, backend is NestJS REST API, heavy jobs processed by Rust 
 | API types | `@/types/api.ts` → `BaseResponse`, `PageMeta` | Define response types per feature |
 | Icons | `lucide-react` | Emoji, unicode symbols, or other icon libraries |
 
-**When creating a new feature:**
-0. **READ `@/components/ui/COMPONENTS.md`** — find the right Shadcn component for each UI element
-1. Add query keys to `@/lib/query-keys.ts`
-2. Use `usePaginatedQuery` for list pages
-3. Use `useApiMutation` for form submissions
-4. Use `api` client for all HTTP calls
-5. Use Zod schemas from `form-utils` for validation
-
 ### Backend NestJS — Shared Code Map
 
 | Need | Already exists at | DO NOT write yourself |
@@ -236,14 +148,6 @@ Frontend is React SPA, backend is NestJS REST API, heavy jobs processed by Rust 
 | Request logging | `common/interceptors/logging.interceptor.ts` → global interceptor | console.log per route |
 | Response wrapping | `common/interceptors/transform.interceptor.ts` → auto-wrap | Manual wrap per endpoint |
 
-**When creating a new module:**
-1. Add `PrismaService` to module providers (or import a shared PrismaModule)
-2. Service extends `BaseCrudService` — inject `PrismaService`, pass to `super(prisma, "modelName")`
-3. Controller extends `BaseCrudController` — add custom endpoints alongside CRUD
-4. DTOs: use `!:` for required decorated fields, `?: T | undefined` for optional fields (`exactOptionalPropertyTypes`)
-5. DTOs use `PaginationDto` for list endpoints
-6. Responses use `BaseResponseDto` — DO NOT return raw objects
-
 ### Rust Jobs — Shared Code Map
 
 | Need | Already exists at | DO NOT write yourself |
@@ -253,13 +157,6 @@ Frontend is React SPA, backend is NestJS REST API, heavy jobs processed by Rust 
 | DB pool | `src/db.rs` → `create_pool()` | Create pool per job |
 | Job runner | `src/queue.rs` → `JobRunner` trait | Write Redis dequeue/retry/dead letter yourself |
 | Job types | `src/jobs/mod.rs::types` | Hardcode strings |
-
-**When creating a new job:**
-1. Create file `src/jobs/{job_name}.rs`
-2. Define payload struct with `#[derive(Deserialize, Serialize)]`
-3. Implement `JobRunner` trait — only write `process()` method
-4. Register in `src/jobs/mod.rs`
-5. Mirror type constant to `/shared/constants/job-types.ts`
 
 ### Cross-Stack — Shared Code Map
 
@@ -284,23 +181,21 @@ Frontend is React SPA, backend is NestJS REST API, heavy jobs processed by Rust 
 
 ## Reference Feature (Dummies)
 
-> The Dummies module is a **reference implementation** included in this boilerplate.
-> It demonstrates all coding patterns and conventions end-to-end.
+> The Dummies module is a **reference implementation** demonstrating all patterns end-to-end.
 > Run `npm run scaffold:clean` to remove all Dummies code when starting a real project.
+> Before implementing a new feature, READ the Dummies module to learn the code style.
 
-**Before implementing a new feature, READ the Dummies module to learn the code style:**
-
-| Layer | Reference file | What it demonstrates |
-|-------|---------------|---------------------|
-| Shared types | `shared/types/dummy.ts` | Zod schemas, enums as const, entity → public type |
-| API DTO | `api/src/modules/dummies/dto/create-dummy.dto.ts` | class-validator decorators, Swagger annotations |
-| API Service | `api/src/modules/dummies/dummies.service.ts` | BaseCrudService extension, custom methods, field exclusion |
-| API Controller | `api/src/modules/dummies/dummies.controller.ts` | BaseCrudController extension, custom endpoints |
-| API Test | `api/src/modules/dummies/__tests__/dummies.service.spec.ts` | Mock Prisma, happy path + error cases |
-| FE Types | `frontend/src/features/dummies/types/index.ts` | Re-export shared + frontend-specific types |
-| FE Queries | `frontend/src/features/dummies/queries/use-dummies.ts` | usePaginatedQuery, useApiMutation, queryKeys |
-| FE Component | `frontend/src/features/dummies/components/dummy-list.tsx` | List pattern: search, filter, table, pagination, skeleton |
-| FE Test | `frontend/src/features/dummies/components/dummy-list.test.tsx` | Mock hooks, test loading/data/empty/error states |
+| Layer | Reference file |
+|-------|---------------|
+| Shared types | `shared/types/dummy.ts` |
+| API DTO | `api/src/modules/dummies/dto/create-dummy.dto.ts` |
+| API Service | `api/src/modules/dummies/dummies.service.ts` |
+| API Controller | `api/src/modules/dummies/dummies.controller.ts` |
+| API Test | `api/src/modules/dummies/__tests__/dummies.service.spec.ts` |
+| FE Types | `frontend/src/features/dummies/types/index.ts` |
+| FE Queries | `frontend/src/features/dummies/queries/use-dummies.ts` |
+| FE Component | `frontend/src/features/dummies/components/dummy-list.tsx` |
+| FE Test | `frontend/src/features/dummies/components/dummy-list.test.tsx` |
 
 ## Multi-Agent Rules
 
@@ -322,20 +217,9 @@ Frontend is React SPA, backend is NestJS REST API, heavy jobs processed by Rust 
 Choose a mode when starting a sprint via `/plan-sprint`:
 
 **Standard Mode (recommended)** — sequential agents, 1 branch per task, 1 PR per task.
-- Branch: `feat/TASK-XXX-[description]` per task
-- Run agent-api → then agent-frontend → then agent-jobs sequentially
-- Each task: branch → code → `/review` → `/qa` → PR → merge
-- Best for: most sprints, dependent tasks, clean git history
-
 **Hero Mode** — parallel agents, 1 branch per sprint, 1 PR.
-- Branch: `sprint/sprint-XX`
-- Agents work simultaneously on the SAME branch, staying in their file ownership lanes
-- End of sprint: `/review` + `/qa` the entire branch → 1 PR to main
-- Best for: sprints with many tasks, independent work, maximum speed
 
-### Avoid conflict
-- Shared files (CLAUDE.md, ARCHITECTURE.md) only edited via PR + review
-- Agent-specific files never conflict because each agent has their own file
+See `/plan-sprint` Step 6 for full details on each mode.
 
 ### Ownership boundaries (enforced in both modes)
 | Resource | Owner | Others |
@@ -351,8 +235,6 @@ Choose a mode when starting a sprint via `/plan-sprint`:
 1. agent-api FIRST — owns shared types and database schema
 2. agent-frontend SECOND — consumes API types and endpoints
 3. agent-jobs ONLY if sprint has job-related tasks
-
-See `/plan-sprint` Step 6 for full spawn instructions per mode.
 
 ## Environment Variables
 - Frontend: `VITE_API_URL`, `VITE_APP_ENV`
@@ -374,23 +256,16 @@ See `/plan-sprint` Step 6 for full spawn instructions per mode.
 
 ## Dev Setup
 
-**New project**: Run `/setup` in Claude Code — it generates package.json, Prisma schema,
-app entry points, and gets dev server running. Then `/office-hours` for product planning.
+Run `/setup` in Claude Code — it copies templates, replaces project name, installs deps,
+starts Docker, runs migrations, and gets dev servers running. Then `/office-hours` for product planning.
 
-**Files generated by `/setup`** (not in boilerplate template):
-- `package.json` (root, frontend/, api/)
-- `jobs/Cargo.toml`
-- `api/prisma/schema.prisma`
-- `api/src/main.ts` (NestJS entry point)
-- `frontend/src/app/main.tsx` (React entry point)
-- `frontend/index.html`
-
-**Manual setup** (after `/setup` has generated the above):
+**Manual setup:**
 ```bash
 cp .env.example .env        # adjust if needed
 docker-compose up -d         # postgres + redis
-cd frontend && npm install && npm run dev
-cd api && npm install && npx prisma migrate dev && npm run start:dev
+npm install                  # install all workspaces
+cd api && ln -sf ../.env .env && npx prisma migrate dev && npm run start:dev
+cd frontend && npm run dev
 cd jobs && cargo build && cargo run
 ```
 
