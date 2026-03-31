@@ -10,7 +10,8 @@
 
 ## Rolling Average Velocity
 - Last 3 sprints: [X] pts/sprint
-- Recommendation for next sprint: commit [X-2] → [X+2] pts
+- Target capacity: 25-30 pts/sprint
+- Recommendation for next sprint: commit [X-2] → [X+2] pts (within 25-30 range)
 
 ## Agent Velocity
 | Agent          | Sprint 1 | Sprint 2 | Sprint 3 | Avg    |

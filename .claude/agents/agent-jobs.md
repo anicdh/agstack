@@ -64,6 +64,11 @@ pub async fn process_job_name(
 - [ ] NO TODO/FIXME — create task in backlog
 - [ ] Check `/shared/constants/` if adding/changing job type
 
+### Runtime verification — MUST pass before marking task done
+- [ ] `cargo run` — worker starts without panic (wait 10s, Redis connection OK)
+- [ ] No unresolved dependency errors at runtime
+- [ ] If new crate added: verify exact version in Cargo.toml (no wildcard `*`)
+
 ## Anti-patterns — NEVER do
 - `.unwrap()` in production → use `?` + `AppError`
 - `.clone()` everywhere → borrow `&T` or use `Arc<T>`

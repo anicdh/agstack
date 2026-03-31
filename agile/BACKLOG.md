@@ -8,7 +8,7 @@
 - Story points on Task (not on Epic)
 - Fibonacci: 1, 2, 3, 5, 8
 - 1-2: a few hours | 3: half day to 1 day | 5: 2-3 days | 8: 3-5 days (consider breaking down)
-- Sprint = 1 week. Target 8-13 pts/sprint. Tasks at 8 pts are a warning sign — break down if possible.
+- Sprint = 1 week. Target 25-30 pts/sprint. Tasks at 8 pts are a warning sign — break down if possible.
 
 ---
 

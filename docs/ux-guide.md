@@ -137,5 +137,143 @@
 
 ---
 
+## Mandatory Patterns — EVERY feature must implement these
+
+> **These are non-negotiable.** AI agents MUST implement all of these for every UI feature.
+> Skipping any of these is a review blocker.
+
+### 1. Mutation feedback (toast)
+
+Every `useApiMutation` MUST have `onSuccess` and `onError` with toast:
+
+```tsx
+const mutation = useApiMutation({
+  mutationFn: (data) => api.post("/items", data),
+  onSuccess: () => {
+    toast.success("Item created successfully");
+    queryClient.invalidateQueries({ queryKey: queryKeys.items.all });
+  },
+  onError: (error) => {
+    toast.error(error.message || "Failed to create item");
+  },
+});
+```
+
+**Rules:**
+- Success toast: describe what happened ("Order updated", "User deleted")
+- Error toast: show human-readable message, never raw API error
+- Toast on EVERY mutation — create, update, delete, status change, bulk action
+- No toast needed for: navigation, filtering, sorting, pagination (read-only actions)
+
+### 2. Stale data invalidation
+
+After ANY mutation, invalidate related queries so other views stay fresh:
+
+```tsx
+onSuccess: () => {
+  // Invalidate the list AND any detail views
+  queryClient.invalidateQueries({ queryKey: queryKeys.items.all });
+  queryClient.invalidateQueries({ queryKey: queryKeys.items.detail(id) });
+  // If mutation affects counts/stats in other views
+  queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.stats });
+}
+```
+
+**Rules:**
+- `invalidateQueries` after EVERY successful mutation — list views, detail views, related counts
+- Use `refetchOnWindowFocus: true` in React Query config (default) so switching tabs auto-refreshes
+- For real-time feel: use `refetchInterval` on dashboards/lists that change frequently
+- Optimistic updates for instant feel: `onMutate` → update cache → `onError` → rollback
+
+### 3. Layout and spacing
+
+Buttons and actions MUST have proper spacing:
+
+```tsx
+// Action bar — ALWAYS use gap + flex-wrap
+<div className="flex flex-wrap items-center gap-2">
+  <Button>Save</Button>
+  <Button variant="outline">Cancel</Button>
+</div>
+
+// Destructive action — SEPARATED from safe actions
+<div className="flex flex-wrap items-center justify-between">
+  <div className="flex items-center gap-2">
+    <Button>Save</Button>
+    <Button variant="outline">Cancel</Button>
+  </div>
+  <Button variant="destructive">Delete</Button>
+</div>
+
+// Table row actions — fixed width to prevent overlap
+<TableCell className="w-[100px]">
+  <div className="flex items-center gap-1">
+    <Button size="icon" variant="ghost"><Pencil className="h-4 w-4" /></Button>
+    <Button size="icon" variant="ghost"><Trash2 className="h-4 w-4" /></Button>
+  </div>
+</TableCell>
+```
+
+**Rules:**
+- ALWAYS `gap-2` or `gap-3` between buttons — never put buttons touching each other
+- ALWAYS `flex-wrap` on action bars — buttons must wrap on small screens, not overlap
+- Table actions: use `size="icon"` buttons in a fixed-width cell
+- Cards in grid: `grid gap-4 sm:grid-cols-2 lg:grid-cols-3` — never hardcode exact widths
+- Page padding: `p-4 sm:p-6 lg:p-8` — consistent across all pages
+
+### 4. Loading and empty states
+
+```tsx
+// Loading — skeleton per section, NOT full-page spinner
+if (isLoading) return <ItemListSkeleton />;
+
+// Empty — message + CTA, NOT blank space
+if (data.length === 0) {
+  return (
+    <div className="flex flex-col items-center justify-center py-12 text-center">
+      <PackageOpen className="h-12 w-12 text-muted-foreground mb-4" />
+      <h3 className="text-lg font-semibold">No items yet</h3>
+      <p className="text-muted-foreground mt-1 mb-4">Get started by creating your first item.</p>
+      <Button onClick={onCreateNew}>
+        <Plus className="h-4 w-4 mr-2" /> Create item
+      </Button>
+    </div>
+  );
+}
+
+// Button loading — spinner inside button, disable click
+<Button disabled={mutation.isPending}>
+  {mutation.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+  Save
+</Button>
+```
+
+**Rules:**
+- Skeleton loader per-section (not one big spinner for the whole page)
+- Empty state with icon + message + CTA button
+- Button shows spinner AND disables while mutation is pending
+- Never show raw "undefined" or empty table with just headers
+
+### 5. Responsive table
+
+```tsx
+// Wrap table in scroll container on mobile
+<div className="overflow-x-auto rounded-md border">
+  <Table>
+    {/* Hide less important columns on mobile */}
+    <TableHeader>
+      <TableRow>
+        <TableHead>Name</TableHead>
+        <TableHead className="hidden sm:table-cell">Status</TableHead>
+        <TableHead className="hidden md:table-cell">Created</TableHead>
+        <TableHead className="w-[100px]">Actions</TableHead>
+      </TableRow>
+    </TableHeader>
+  </Table>
+</div>
+```
+
+---
+
 *Reference: [Laws of UX](https://lawsofux.com) by Jon Yablonski*
 *Updated by: [who last updated this file]*

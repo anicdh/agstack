@@ -50,6 +50,23 @@ Specifically, MUST read these files before coding:
 - [ ] Vitest tests pass for all changed files
 - [ ] NO console.log in production code
 - [ ] NO TODO/FIXME — create task in backlog
+- [ ] Dependencies added with `-E` flag (no `^` or `~` in package.json)
+
+### UX verification — MUST check for every UI change
+- [ ] **Feedback**: every mutation (create/update/delete) shows a toast on success AND on error
+- [ ] **Stale data**: after mutation, `queryClient.invalidateQueries` is called so other views/tabs refetch
+- [ ] **Layout**: no overlapping elements — check buttons have `gap-2` or `gap-3`, use `flex-wrap` if needed
+- [ ] **Responsive**: UI doesn't break at `sm:` (640px) — buttons stack vertically, table scrolls horizontally
+- [ ] **Loading**: every async action shows loading state (button spinner or skeleton)
+- [ ] **Empty state**: lists/tables show message + CTA when no data, not blank space
+- [ ] **Destructive actions**: delete uses `AlertDialog` for confirmation, button is `variant="destructive"`, visually separated from other actions
+- [ ] **Error recovery**: form errors highlight specific fields, do NOT clear valid data
+- [ ] Read `docs/ux-guide.md` if building a new page or complex component
+
+### Runtime verification — MUST pass before marking task done
+- [ ] `npm run dev -w frontend` — dev server starts without crash (wait 10s)
+- [ ] No import errors, no missing module errors in browser console
+- [ ] If new dependency added: verify it resolves correctly at runtime, not just compile time
 
 ## Anti-patterns — NEVER do
 - `useEffect(() => { setState(derivedValue) })` → compute directly in render

@@ -54,13 +54,28 @@ Frontend is React SPA, backend is NestJS REST API, heavy jobs processed by Rust 
 - `exactOptionalPropertyTypes: true` — optional class properties MUST include `| undefined` (e.g., `meta?: PageMeta | undefined`, NOT `meta?: PageMeta`)
 - `noPropertyAccessFromIndexSignature: true` — use bracket notation for index signatures (e.g., `process.env["PORT"]`, NOT `process.env.PORT`)
 - Rust: **Clippy pedantic** + **rustfmt** (config: `jobs/.clippy.toml`, `jobs/rustfmt.toml`)
+- **Dependency pinning: EXACT versions only** — NO `^` or `~` prefix
+  - `npm install` adds `^` by default — ALWAYS use `npm install --save-exact` (or `npm i -E`)
+  - When adding a new dependency: `npm i -E <package>@<version>`
+  - When adding a dev dependency: `npm i -DE <package>@<version>`
+  - If you don't know the latest version, run `npm view <package> version` first, then install with `-E`
+  - After ANY `npm install` that adds/changes deps, verify `package.json` has no `^` or `~` — fix if found
+  - Reason: supply chain security — pinned versions prevent auto-pulling compromised patches
+  - Version upgrades are managed centrally via agStack releases, NOT per-project
 - Commit: conventional commits — `type(scope): description` (max 72 chars)
 
 ### Frontend (`/frontend`)
 
 > **Before building any UI feature, READ these files:**
-> 1. `docs/ux-guide.md` — UX principles and component decision patterns
+> 1. `docs/ux-guide.md` — UX principles, component decisions, AND **Mandatory Patterns** section (toast, invalidation, spacing, loading, responsive)
 > 2. `frontend/src/components/ui/COMPONENTS.md` — installed Shadcn components
+>
+> **Non-negotiable UX rules (from ux-guide.md Mandatory Patterns):**
+> - Every mutation → toast success + toast error + `invalidateQueries`
+> - Every action bar → `flex gap-2 flex-wrap` (no overlapping buttons)
+> - Every async action → loading spinner on button + disable while pending
+> - Every list/table → empty state with icon + message + CTA
+> - Every table → `overflow-x-auto` wrapper for mobile scroll
 
 **Structure:**
 - Feature-based: `/src/features/[name]/{components,hooks,queries,stores,types}/`

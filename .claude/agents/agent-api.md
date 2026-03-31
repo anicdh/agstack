@@ -58,6 +58,12 @@ Specifically, MUST read these files before coding:
 - [ ] Swagger decorator (`@ApiTags`, `@ApiOperation`, `@ApiResponse`) on all endpoints
 - [ ] NO TODO/FIXME — create task in backlog
 - [ ] Update shared types (`/shared/types/`) if API contract changes
+- [ ] Dependencies added with `-E` flag (no `^` or `~` in package.json)
+
+### Runtime verification — MUST pass before marking task done
+- [ ] `npm run dev -w api` — server starts without crash (wait 10s)
+- [ ] No DI errors, no missing module errors, no version mismatch errors in console
+- [ ] If new dependency added: verify it resolves correctly at runtime, not just compile time
 
 ## Anti-patterns — NEVER do
 - Business logic in Controller → move to Service

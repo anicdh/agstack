@@ -58,6 +58,16 @@ Claude does the rest — installs dependencies, starts Docker, runs migrations, 
 
 Then use `/office-hours` to start building your actual product — define your users, plan features, design your schema, and kick off your first sprint.
 
+### Upgrade existing project
+
+Already have a project built on agStack? Pull the latest conventions, agent rules, and skills:
+
+```
+Read .claude/skills/upgrade/SKILL.md and follow its instructions
+```
+
+This updates boilerplate files (CLAUDE.md, agent configs, Definition of Done, skills) while preserving your project code, sprint history, and custom configs.
+
 ### Manual Setup (without the wizard)
 
 ```bash

@@ -5,8 +5,15 @@
 ## Code
 - [ ] Code has been merged to main (via PR + approved review)
 - [ ] No TypeScript errors (`tsc --noEmit` passes)
-- [ ] ESLint passes, no new warnings
+- [ ] Biome passes (`npx @biomejs/biome check .`), no new warnings
 - [ ] Rust: `cargo clippy` passes, no new warnings
+- [ ] Dependencies installed with exact versions (`-E` flag, no `^` or `~` in package.json)
+
+## Runtime Verification
+- [ ] API server starts successfully (`npm run dev -w api` — no crash within 10s)
+- [ ] Frontend dev server starts successfully (`npm run dev -w frontend` — no crash within 10s)
+- [ ] Rust worker compiles and starts (`cargo run` — no panic within 10s)
+- [ ] No unresolved dependency errors at runtime (DI injection, missing modules, version mismatches)
 
 ## Testing
 - [ ] Unit tests cover new logic (coverage does not decrease)

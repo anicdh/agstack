@@ -6,7 +6,7 @@
 ## When to use
 
 **First sprint:** Run `/plan-sprint` immediately after `/plan-eng-review` is complete.
-**Subsequent sprints:** Run `/plan-sprint` when the current sprint is done (after `/retro`).
+**Subsequent sprints:** Run `/plan-sprint` when the current sprint is done.
 
 This skill handles both cases automatically — it detects whether this is the first sprint or a continuation.
 
@@ -16,8 +16,8 @@ This skill handles both cases automatically — it detects whether this is the f
 
 **Prerequisite for subsequent sprints:**
 - Sprint Review done (user feedback collected on this week's release)
-- `/retro` has been run (lessons learned inform next sprint)
 - Previous sprint tasks marked ✅ or identified as carry-over
+- `/retro` run IF previous sprint had issues (see Conditional Retro below)
 
 If prerequisites are missing, tell the user what to run first.
 
@@ -81,7 +81,7 @@ For each Epic, create Tasks that are independently deliverable:
 - Story points use Fibonacci: 1, 2, 3, 5, 8
   - 1-2: a few hours | 3: half day to 1 day | 5: 2-3 days | 8: 3-5 days (warning sign)
 - Tasks at 8 pts are allowed but are a warning — ask "can this be split into two smaller tasks?"
-- Sprint = 1 week. Target 8-13 pts total per sprint.
+- Sprint = 1 week. Target 25-30 pts total per sprint.
 - "Accept when" criteria must be specific and testable, not vague
 - "Tech" section should reference shared code from the Reuse Map in CLAUDE.md
 - Number tasks sequentially across all epics: TASK-001, TASK-002, ...
@@ -107,7 +107,7 @@ After all Epics and Tasks are in BACKLOG.md:
 4. **Select tasks for the sprint** based on:
    - Dependencies (tasks with no dependencies first)
    - Priority (from PRD — which features are most critical for MVP)
-   - Capacity (first sprint: aim for 8-13 points for a 1-week sprint)
+   - Capacity (first sprint: aim for 25-30 points for a 1-week sprint)
    - If past velocity exists in VELOCITY.md, use it as guide
    - Every selected task must contribute to the Sprint Goal
 5. **Populate SPRINT.md** using the template from `agile/templates/sprint.md`
@@ -117,11 +117,22 @@ After all Epics and Tasks are in BACKLOG.md:
 
 **Sprint 1 special rules:**
 - If this is Sprint 1, include foundational tasks (database schema, app shell) before feature tasks
-- Sprint 1 velocity is unpredictable — commit conservatively (8-13 pts for a 1-week sprint)
+- Sprint 1 velocity is unpredictable — commit conservatively (25-30 pts for a 1-week sprint)
 - Always include at least one end-to-end task (FE → API → DB) to validate the full stack early
 
+**Conditional Retro — check before planning next sprint:**
+Before proceeding, check the previous sprint for these signals:
+- Carry-over > 0 tasks (sprint didn't complete all committed work)
+- Any task was rejected at `/review` or `/qa`
+- Actual velocity dropped compared to previous sprint
+- User reported issues or friction during the sprint
+
+If ANY signal is present → tell the user: "Previous sprint had [signal]. Recommend running `/retro` first."
+If NO signals → skip retro, proceed directly to planning.
+If RETRO.md exists from a previous run → read and apply its lessons regardless.
+
 **Next Sprint rules:**
-- Read previous sprint's RETRO.md for lessons learned — apply them to planning
+- If RETRO.md exists, read it for lessons learned — apply them to planning
 - Use actual velocity from VELOCITY.md to set realistic commitment (not wishful thinking)
 - Carry-over tasks keep their original IDs and points — do NOT renumber
 - If a carry-over task was partially done, note what remains in the Tech section
