@@ -40,21 +40,13 @@ You get a **senior-level AI teammate from day one**. Not a blank project with a 
 
 ### Setup
 
-Open Claude Code and paste this. Claude does the rest.
+Create your project folder, open Claude Code inside it, and paste this:
 
 ```
-Clone https://github.com/anicdh/agstack.git into a new project called [your-project-name], remove .git history, init a fresh repo, then run /setup
+git clone https://github.com/anicdh/agstack.git _tmp && cp -r _tmp/. . && rm -rf _tmp .git && git init && git add -A && git commit -m "init: scaffold from agStack" then run /setup
 ```
 
-That's it. Claude clones the starter kit, sets up the project, installs dependencies, and gets your dev servers running.
-
-### Alternative: Manual setup
-
-```bash
-git clone https://github.com/anicdh/agstack.git my-project
-cd my-project && rm -rf .git && git init
-claude    # then type: /setup
-```
+Claude does the rest — installs dependencies, starts Docker, runs migrations, and gets your dev servers running.
 
 `/setup` walks you through the full onboarding:
 
