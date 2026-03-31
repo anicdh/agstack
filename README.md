@@ -38,27 +38,22 @@ You get a **senior-level AI teammate from day one**. Not a blank project with a 
 - [Docker](https://docs.docker.com/get-docker/) and Docker Compose
 - Node.js 20+ and Rust toolchain (`rustup`)
 
-### Setup (One-liner)
+### Setup
 
-Paste this into your terminal:
+Open Claude Code and paste this. Claude does the rest.
 
-```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/anicdh/agstack/main/scripts/bootstrap.sh) my-project && cd my-project && claude -p '/setup'
+```
+Clone https://github.com/anicdh/agstack.git into a new project called [your-project-name], remove .git history, init a fresh repo, then run /setup
 ```
 
-That's it. Clone → init → setup wizard → running project.
+That's it. Claude clones the starter kit, sets up the project, installs dependencies, and gets your dev servers running.
 
-### Setup (Step by step)
+### Alternative: Manual setup
 
 ```bash
-# 1. Clone the starter kit and start fresh
 git clone https://github.com/anicdh/agstack.git my-project
-cd my-project
-rm -rf .git && git init
-
-# 2. Open in Claude Code and run the setup wizard
-claude
-> /setup
+cd my-project && rm -rf .git && git init
+claude    # then type: /setup
 ```
 
 `/setup` walks you through the full onboarding:
