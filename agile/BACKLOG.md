@@ -24,6 +24,7 @@
 > **Source:** /office-hours session [date]
 
 ### TASK-001: [Task Name] [X pts] ⬜
+- **Dev:** [dev-name — Team Mode only, assigned during /plan-sprint]
 - **Agent:** [agent name]
 - **Branch:** feat/[branch-name]
 - **Accept when (AI implementation):**
@@ -37,6 +38,7 @@
 - **Depends on:** [Task IDs if any]
 
 ### TASK-002: [Task Name] [X pts] ⬜
+- **Dev:** [dev-name — Team Mode only, assigned during /plan-sprint]
 - **Agent:** [agent name]
 - **Branch:** feat/[branch-name]
 - **Accept when (AI implementation):**

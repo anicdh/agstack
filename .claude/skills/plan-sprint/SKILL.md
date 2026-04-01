@@ -42,6 +42,16 @@ Read these files:
 - If BACKLOG.md has only templates (no real epics) → **First Sprint Mode** (read eng review output)
 - If BACKLOG.md has real epics with tasks → **Next Sprint Mode** (read previous sprint RETRO.md + carry-over tasks)
 
+**Team Mode — ask for sprint participants:**
+
+If `Team Mode = team` in CLAUDE.md, ask:
+> "Who is participating in this sprint? (comma-separated names, e.g., `an, minh`)"
+
+Use these names as dev identifiers throughout the sprint (SPRINT.md, BACKLOG.md, CLAIMS.md, spawn prompts).
+Calculate sprint capacity: `[N devs] × 25-30 pts = [total] pts`.
+
+Solo mode: skip this — capacity stays 25-30 pts, no dev column needed.
+
 ### Step 2: Create Epics in BACKLOG.md
 
 > **Next Sprint Mode**: Skip this step if epics already exist. Instead, review existing epics —
@@ -120,6 +130,25 @@ AI implements following mockup → human compares vs mockup → ✅
 | Rust jobs, queue processing | agent-jobs |
 | Shared types, Zod schemas | agent-api (primary), mirrored by agent-jobs |
 
+**Multi-dev task assignment (Team Mode only):**
+
+When `Team Mode = team` and there are multiple devs, assign tasks to devs during this step:
+
+1. **Group by dependency** — if TASK-B depends on TASK-A, same dev gets both
+2. **Group by domain** — tasks touching the same Prisma model or feature module → same dev
+3. **Balance points** — roughly equal pts per dev (±3 pts variance OK)
+4. **Shared types** — if multiple devs need new shared types, assign ALL shared type tasks to one dev (they merge first, others rebase)
+
+Add `Dev` column to each task in BACKLOG.md:
+```
+### TASK-XXX: [Task Name] [X pts] ⬜
+- **Dev:** [dev-name]
+- **Agent:** [agent-frontend | agent-api | agent-jobs]
+...
+```
+
+Present assignment summary to ALL devs for agreement before starting.
+
 ### Step 4: Plan the Sprint
 
 After all Epics and Tasks are in BACKLOG.md:
@@ -133,7 +162,7 @@ After all Epics and Tasks are in BACKLOG.md:
 4. **Select tasks for the sprint** based on:
    - Dependencies (tasks with no dependencies first)
    - Priority (from PRD — which features are most critical for MVP)
-   - Capacity (first sprint: aim for 25-30 points for a 1-week sprint)
+   - Capacity (25-30 pts per dev per sprint — team mode: multiply by number of participants)
    - If past velocity exists in VELOCITY.md, use it as guide
    - Every selected task must contribute to the Sprint Goal
 5. **Populate SPRINT.md** using the template from `agile/templates/sprint.md`
@@ -143,7 +172,7 @@ After all Epics and Tasks are in BACKLOG.md:
 
 **Sprint 1 special rules:**
 - If this is Sprint 1, include foundational tasks (database schema, app shell) before feature tasks
-- Sprint 1 velocity is unpredictable — commit conservatively (25-30 pts for a 1-week sprint)
+- Sprint 1 velocity is unpredictable — commit conservatively (25-30 pts per dev for a 1-week sprint)
 - Always include at least one end-to-end task (FE → API → DB) to validate the full stack early
 
 **Conditional Retro — check before planning next sprint:**
@@ -197,9 +226,20 @@ Sprint [XX] Plan:
 - Key deliverables: [list 2-3 outcomes that serve the Sprint Goal]
 
 Top priority tasks:
-1. TASK-XXX: [name] ([N] pts) — [agent]
-2. TASK-XXX: [name] ([N] pts) — [agent]
+1. TASK-XXX: [name] ([N] pts) — [dev] / [agent]
+2. TASK-XXX: [name] ([N] pts) — [dev] / [agent]
 3. ...
+```
+
+**Team Mode — also include per-dev breakdown:**
+```
+Dev assignments:
+  [dev-1]: TASK-XXX, TASK-XXX, TASK-XXX ([N] pts)
+           Agents: agent-api → agent-frontend (sequential)
+           Merge order: TASK-XXX (shared types) → TASK-XXX → TASK-XXX
+  [dev-2]: TASK-XXX, TASK-XXX ([N] pts)
+           Agents: agent-api → agent-frontend (sequential)
+           Merge order: TASK-XXX → TASK-XXX (after dev-1 merges shared types)
 ```
 
 Ask the user:
@@ -232,7 +272,7 @@ One branch per task, sequential, review each PR before moving on. For those who 
 5. Run agent-jobs tasks if any
 6. Every PR is reviewed and tested before the next task starts
 
-**Spawn prompt (sequential):**
+**Spawn prompt (sequential — solo mode):**
 ```
 You are agent-api. Read CLAUDE.md, then .claude/agents/agent-api.md,
 then agile/sprints/current.md. Your tasks this sprint: TASK-001, TASK-002.
@@ -242,6 +282,19 @@ Follow the quality checklist in your agent file.
 ```
 
 After agent-api finishes all tasks and PRs are merged, spawn agent-frontend.
+
+**Spawn prompt (sequential — team mode):**
+```
+You are agent-api working for [dev-name]. Read CLAUDE.md, then
+.claude/agents/agent-api.md, then .claude/agents/TEAM-RULES.md,
+then agile/sprints/current.md.
+Your tasks this sprint: TASK-XXX, TASK-XXX (assigned to [dev-name]).
+Before editing shared files, check .claude/agents/CLAIMS.md.
+Before starting a task, git pull --rebase origin main.
+For each task: create branch feat/TASK-XXX-[name], complete the task,
+commit, then report back for review before starting the next task.
+Follow the quality checklist in your agent file.
+```
 
 **Why this is the default:**
 - Each PR is small and easy to review

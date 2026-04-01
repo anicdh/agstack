@@ -2,17 +2,17 @@
 
 - **Goal:** [Sprint goal — 1 sentence]
 - **Duration:** [start] → [end] (1 week)
-- **Capacity:** [N] agents × [N] days = [N] agent-days
+- **Capacity:** [N] devs × [N] agents × [N] days = [N] agent-days
 - **Committed points:** [N] pts
 
 ---
 
 ## Sprint Backlog
 
-| ID       | Task                          | Pts | Agent          | Status          |
-|----------|-------------------------------|-----|----------------|-----------------|
-| TASK-XXX | [Task name]                   | X   | [agent]        | ⬜ Todo         |
-| TASK-XXX | [Task name]                   | X   | [agent]        | ⬜ Todo         |
+| ID       | Task                          | Pts | Dev   | Agent          | Status          |
+|----------|-------------------------------|-----|-------|----------------|-----------------|
+| TASK-XXX | [Task name]                   | X   | [dev] | [agent]        | ⬜ Todo         |
+| TASK-XXX | [Task name]                   | X   | [dev] | [agent]        | ⬜ Todo         |
 
 **Status legend:** ⬜ Todo → 🔵 In Progress → 🟢 Implemented → 🔧 Refining → ✅ Done
 
@@ -28,11 +28,17 @@
 
 ---
 
-## Agent Assignments
+## Dev Assignments
 
-### [agent-name]
-- TASK-XXX: [brief description]
-- TASK-XXX: [brief description]
+### [dev-name]
+**Tasks:** TASK-XXX, TASK-XXX ([N] pts)
+**Agents:** agent-api, agent-frontend
+**Branch prefix:** feat/TASK-XXX-[desc]
+
+### [dev-name]
+**Tasks:** TASK-XXX, TASK-XXX ([N] pts)
+**Agents:** agent-api, agent-frontend
+**Branch prefix:** feat/TASK-XXX-[desc]
 
 ---
 
