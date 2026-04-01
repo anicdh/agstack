@@ -4,6 +4,10 @@
 [Brief description — 2-3 sentences. Example: "Order management platform for SMEs.
 Frontend is React SPA, backend is NestJS REST API, heavy jobs processed by Rust worker."]
 
+## Team Mode: [solo | team]
+<!-- Set by /setup. "solo" = 1 dev + AI agents. "team" = multiple devs + AI agents. -->
+<!-- Team mode enables: file claims, conflict detection, PR-based workflow, branch protection. -->
+
 ## Tech Stack
 
 ### Frontend (`/frontend`)
@@ -235,6 +239,12 @@ See `/plan-sprint` Step 6 for full details on each mode.
 1. agent-api FIRST — owns shared types and database schema
 2. agent-frontend SECOND — consumes API types and endpoints
 3. agent-jobs ONLY if sprint has job-related tasks
+
+### Team Mode Rules (only when Team Mode = team)
+
+> See `.claude/agents/TEAM-RULES.md` for full team workflow: branch protection, file claims,
+> conflict detection, PR workflow, and communication protocol.
+> Solo mode skips all of this — the single dev + AI agents use Standard/Hero Mode above.
 
 ## Environment Variables
 - Frontend: `VITE_API_URL`, `VITE_APP_ENV`

@@ -112,6 +112,12 @@ If the install fails, suggest:
 Ask the user:
 - Project name (kebab-case, for package.json)
 - One-line description (what does this product do?)
+- Team mode: **Solo** (1 dev + AI agents) or **Team** (multiple devs + AI agents)?
+
+Then update `CLAUDE.md`:
+- Replace `## Team Mode: [solo | team]` with the user's choice
+- If **Team**: `main` branch will be protected, PRs required, file claims enabled
+- If **Solo**: lightweight workflow, direct push to main OK
 
 Then:
 1. Update `CLAUDE.md` — replace `[Project Name]` with actual name, replace `[Brief description]` with actual description

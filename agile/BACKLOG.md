@@ -23,19 +23,26 @@
 ### TASK-001: [Task Name] [X pts] ⬜
 - **Agent:** [agent name]
 - **Branch:** feat/[branch-name]
-- **Accept when:**
+- **Accept when (AI implementation):**
   - [ ] [Acceptance criterion 1]
   - [ ] [Acceptance criterion 2]
-  - [ ] [Acceptance criterion 3]
+  - [ ] Passes lint, typecheck, runtime verification
+- **Accept when (Human refinement):**
+  - [ ] UX reviewed in browser — no visual bugs or interaction issues
+  - [ ] Edge cases verified — empty, error, loading states work
 - **Tech:** [Technical approach]
 - **Depends on:** [Task IDs if any]
 
 ### TASK-002: [Task Name] [X pts] ⬜
 - **Agent:** [agent name]
 - **Branch:** feat/[branch-name]
-- **Accept when:**
+- **Accept when (AI implementation):**
   - [ ] [Acceptance criterion 1]
   - [ ] [Acceptance criterion 2]
+  - [ ] Passes lint, typecheck, runtime verification
+- **Accept when (Human refinement):**
+  - [ ] UX reviewed in browser — no visual bugs or interaction issues
+  - [ ] Edge cases verified — empty, error, loading states work
 - **Tech:** [Technical approach]
 
 ---
@@ -51,7 +58,8 @@
 ---
 
 ## Legend
-- ✅ Done | 🔵 In current sprint | ⬜ Backlog
+- ⬜ Backlog | 🔵 In current sprint | 🟢 Implemented (AI done) | 🔧 Refining (human polishing) | ✅ Done (both signed off)
+- Only ✅ Done tasks count toward sprint velocity
 - Points on Task, NOT on Epic
 - Epic has only WHY + SCOPE — from /office-hours
-- Task has: agent, branch, accept-when, tech, depends-on
+- Task has: agent, branch, accept-when (AI + Human), tech, depends-on

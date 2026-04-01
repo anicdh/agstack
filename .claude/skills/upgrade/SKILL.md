@@ -34,6 +34,8 @@ lefthook.yml
 .claude/agents/agent-api.md
 .claude/agents/agent-frontend.md
 .claude/agents/agent-jobs.md
+.claude/agents/CLAIMS.md (create if missing — team mode file claims)
+.claude/agents/TEAM-RULES.md (create if missing — team mode workflow rules)
 agile/DEFINITION-OF-DONE.md
 agile/VELOCITY.md (merge — keep existing sprint data, update template sections)
 agile/BACKLOG.md (merge — keep existing epics/tasks, update estimation guide header)

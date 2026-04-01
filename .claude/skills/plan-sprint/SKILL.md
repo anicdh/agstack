@@ -36,6 +36,7 @@ Read these files:
 4. `agile/DEFINITION-OF-DONE.md` — what "done" means
 5. `agile/VELOCITY.md` — past velocity data
 6. `agile/sprints/current.md` — which sprint is active
+7. If `Team Mode = team` in CLAUDE.md → also read `.claude/agents/TEAM-RULES.md`
 
 **Detect mode:**
 - If BACKLOG.md has only templates (no real epics) → **First Sprint Mode** (read eng review output)
@@ -68,11 +69,36 @@ For each Epic, create Tasks that are independently deliverable:
 ### TASK-XXX: [Task Name] [X pts] ⬜
 - **Agent:** [agent-frontend | agent-api | agent-jobs]
 - **Branch:** feat/[branch-name]
-- **Accept when:**
+- **Accept when (AI implementation):**
   - [ ] [Specific, testable criterion]
   - [ ] [Another criterion]
+  - [ ] Passes lint, typecheck, runtime verification
+- **Accept when (Human refinement):**
+  - [ ] UX reviewed — no visual bugs, spacing, or interaction issues
+  - [ ] Edge cases handled — empty, error, loading states work correctly
+  - [ ] Tested in browser — actual user flow works end-to-end
 - **Tech:** [Technical approach — which files, patterns, shared code to use]
 - **Depends on:** [TASK-XXX if any, or "none"]
+```
+
+**Task lifecycle:**
+```
+⬜ Todo → 🔵 In Progress → 🟢 Implemented → 🔍 UX Review → 🔧 Refining → ✅ Done
+              (AI working)    (AI done)     (agent-ux,     (Human        (Both
+                                            sprint end)    polishing)    signed off)
+```
+
+- AI marks task `🟢 Implemented` when code passes all automated checks
+- At **sprint end** (all tasks 🟢): spawn `agent-ux` to review ALL features holistically
+- agent-ux outputs categorized todo list (Critical / Recommended / Nice to have)
+- agent-ux auto-fixes Critical pattern issues (missing toast, spacing, loading states)
+- Human reviews remaining todo list, fixes what's needed → marks `🔧 Refining`
+- Human confirms everything works → marks `✅ Done`
+- Only `✅ Done` tasks count toward sprint velocity
+
+**Sprint-end review flow:**
+```
+All tasks 🟢 → spawn agent-ux → auto-fix criticals → output todo list → human refines → ✅
 ```
 
 **Task rules:**
