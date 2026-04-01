@@ -34,16 +34,15 @@
 - [ ] ADR written (if new architectural decision)
 - [ ] Agent file updated "Last completed"
 
-## UX Review — sprint end (marks transition from 🟢 → 🔍)
-- [ ] agent-ux spawned after ALL tasks reach 🟢 Implemented
-- [ ] agent-ux reviewed all features holistically against `docs/ux-guide.md`
-- [ ] Critical issues auto-fixed by agent-ux (toast, spacing, loading states)
-- [ ] UX todo list written to `.claude/agents/agent-ux.md` under "Latest Review"
+## Design Compliance (for user-oriented epics)
+- [ ] Epic had design approved by product-design agent BEFORE sprint planning
+- [ ] Implementation matches design mockup in `frontend/src/mockups/[epic-name]/`
+- [ ] UI spec acceptance criteria in `docs/ui-specs/[epic-name].md` all checked off
 
-## Human Refinement (marks transition from 🔍 → ✅)
-- [ ] Human reviewed agent-ux todo list
-- [ ] Human tested features in browser — actual user flow works end-to-end
-- [ ] Remaining UX issues fixed or accepted as tech debt (tracked in backlog)
+## Human Refinement (marks transition from 🟢 → ✅)
+- [ ] Human compared implementation against design mockup in browser
+- [ ] Human tested actual user flow end-to-end
+- [ ] UX issues fixed or accepted as tech debt (tracked in backlog)
 - [ ] Human signs off — task is truly done, not just "AI says it's done"
 
 ## Deployment

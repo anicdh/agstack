@@ -28,6 +28,7 @@ Specifically, MUST read these files before coding:
 
 ### Before writing code
 - [ ] Read CLAUDE.md section "Reuse Map — Frontend" to know shared code
+- [ ] If user-oriented epic: read design mockup at `frontend/src/mockups/[epic-name]/` and UI spec at `docs/ui-specs/[epic-name].md` — follow them exactly
 - [ ] Confirm feature folder structure is correct: `features/[name]/{components,hooks,queries,stores,types}/`
 - [ ] Check if there are shared components/hooks to reuse before creating new ones
 - [ ] Add query keys to `@/lib/query-keys.ts` if creating new feature

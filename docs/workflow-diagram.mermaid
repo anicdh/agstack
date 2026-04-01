@@ -1,0 +1,86 @@
+flowchart TD
+    subgraph Planning["Planning Phase"]
+        OH["/office-hours\n(Product Discovery)"]
+        CEO["/plan-ceo-review\n(Business Validation)"]
+        ENG["/plan-eng-review\n(Technical Feasibility)"]
+        PO["/product-owner-review\n(Epic Classification)"]
+    end
+
+    OH --> CEO --> ENG --> PO
+
+    PO --> ClassifyEpic{"Epic Type?"}
+
+    ClassifyEpic -->|"technical\n(no UI)"| SprintDirect["/plan-sprint"]
+    ClassifyEpic -->|"user-oriented\n(has UI)"| DesignPhase
+
+    subgraph DesignPhase["Design Phase"]
+        PD["agent-product-design\n(Interactive Mockups)"]
+        DR["/plan-design-review\n(Design Approval)"]
+    end
+
+    PD --> DR
+    DR -->|"Approved"| SprintDirect
+    DR -->|"Needs Changes"| PD
+
+    subgraph SprintPlanning["Sprint Planning"]
+        SprintDirect --> ChooseMode{"Dev Mode?"}
+        ChooseMode -->|"Standard\n(Recommended)"| Standard["Standard Mode\n1 branch/task\nSequential"]
+        ChooseMode -->|"Hero"| Hero["Hero Mode\n1 branch/sprint\nParallel"]
+    end
+
+    subgraph SprintExecution["Sprint Execution"]
+        direction TB
+        API["agent-api\n(Shared Types + API)"]
+        FE["agent-frontend\n(React UI)"]
+        JOBS["agent-jobs\n(Rust Workers)"]
+
+        API -->|"Types + Endpoints ready"| FE
+        API -.->|"If job tasks exist"| JOBS
+    end
+
+    Standard --> API
+    Hero --> API
+
+    subgraph TaskLifecycle["Task Lifecycle"]
+        direction LR
+        TODO["⬜ Todo"] --> IP["🔵 In Progress\n(AI working)"]
+        IP --> IMPL["🟢 Implemented\n(AI done, checks pass)"]
+        IMPL --> REFINE["🔧 Refining\n(Human polishing)"]
+        REFINE --> DONE["✅ Done\n(Both signed off)"]
+    end
+
+    FE --> TaskLifecycle
+    JOBS --> TaskLifecycle
+
+    subgraph QualityGates["Quality Gates"]
+        direction TB
+        LINT["Lint + TypeCheck\n(Biome, tsc --noEmit)"]
+        RUNTIME["Runtime Verification\n(Server starts, no crash 10s)"]
+        REVIEW["/review\n(Code Review)"]
+        QA["/qa\n(Browser Test)"]
+        DESIGN_REV["/design-review\n(Compare vs Mockup)"]
+        CSO["/cso\n(Security Check)"]
+    end
+
+    IMPL -.-> QualityGates
+
+    subgraph SprintEnd["Sprint End"]
+        SHIP["/ship\n(Create PR)"]
+        RETRO_CHECK{"Issues detected?\n(carry-over, rejection,\nvelocity drop)"}
+        RETRO["/retro\n(Retrospective)"]
+        NEXT["/plan-sprint\n(Next Sprint)"]
+    end
+
+    DONE --> SHIP
+    SHIP --> RETRO_CHECK
+    RETRO_CHECK -->|"Yes"| RETRO --> NEXT
+    RETRO_CHECK -->|"No"| NEXT
+    NEXT --> SprintDirect
+
+    style Planning fill:#e8f4fd,stroke:#2196F3
+    style DesignPhase fill:#fff3e0,stroke:#FF9800
+    style SprintPlanning fill:#e8f5e9,stroke:#4CAF50
+    style SprintExecution fill:#f3e5f5,stroke:#9C27B0
+    style TaskLifecycle fill:#fff8e1,stroke:#FFC107
+    style QualityGates fill:#fce4ec,stroke:#E91E63
+    style SprintEnd fill:#e0f2f1,stroke:#009688

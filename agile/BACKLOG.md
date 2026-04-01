@@ -12,9 +12,12 @@
 
 ---
 
-## EPIC-01: [Epic Name]
+## EPIC-01: [Epic Name] [type: user-oriented | technical]
 
 > **Why:** [Problem to solve — from /office-hours]
+> **Type:** user-oriented | technical
+> **Design required:** yes | no
+> **Design status:** ⬜ Not started | 🎨 In progress | ✅ Approved
 >
 > **Scope:** [What is included in this epic]
 > **Out of scope:** [What is NOT being done]
@@ -47,9 +50,13 @@
 
 ---
 
-## EPIC-02: [Epic Name]
+## EPIC-02: [Epic Name] [type: user-oriented | technical]
 
 > **Why:** [...]
+> **Type:** user-oriented | technical
+> **Design required:** yes | no
+> **Design status:** ⬜ Not started | 🎨 In progress | ✅ Approved
+>
 > **Scope:** [...]
 > **Source:** /office-hours session [date]
 
@@ -58,8 +65,19 @@
 ---
 
 ## Legend
+
+**Epic types:**
+- `user-oriented` — has UI, needs design approval before sprint (product-design agent)
+- `technical` — no UI, goes straight to /plan-sprint
+
+**Epic design status:**
+- ⬜ Not started | 🎨 In progress | ✅ Approved
+
+**Task status:**
 - ⬜ Backlog | 🔵 In current sprint | 🟢 Implemented (AI done) | 🔧 Refining (human polishing) | ✅ Done (both signed off)
 - Only ✅ Done tasks count toward sprint velocity
+
+**Structure:**
 - Points on Task, NOT on Epic
-- Epic has only WHY + SCOPE — from /office-hours
-- Task has: agent, branch, accept-when (AI + Human), tech, depends-on
+- Epic has: WHY + TYPE + SCOPE + Design status — from /product-owner-review
+- Task has: agent, branch, accept-when (AI + Human), tech, design reference

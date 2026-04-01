@@ -83,22 +83,22 @@ For each Epic, create Tasks that are independently deliverable:
 
 **Task lifecycle:**
 ```
-⬜ Todo → 🔵 In Progress → 🟢 Implemented → 🔍 UX Review → 🔧 Refining → ✅ Done
-              (AI working)    (AI done)     (agent-ux,     (Human        (Both
-                                            sprint end)    polishing)    signed off)
+⬜ Todo → 🔵 In Progress → 🟢 Implemented → 🔧 Refining → ✅ Done
+              (AI working)    (AI done,        (Human        (Both
+                               lint/type/      compares vs    signed off)
+                               runtime pass)   design mock)
 ```
 
 - AI marks task `🟢 Implemented` when code passes all automated checks
-- At **sprint end** (all tasks 🟢): spawn `agent-ux` to review ALL features holistically
-- agent-ux outputs categorized todo list (Critical / Recommended / Nice to have)
-- agent-ux auto-fixes Critical pattern issues (missing toast, spacing, loading states)
-- Human reviews remaining todo list, fixes what's needed → marks `🔧 Refining`
-- Human confirms everything works → marks `✅ Done`
+- Human compares implementation against design mockup (for user-oriented epics)
+- Human fixes remaining issues → marks `🔧 Refining`
+- Human confirms everything matches design + works end-to-end → marks `✅ Done`
 - Only `✅ Done` tasks count toward sprint velocity
 
-**Sprint-end review flow:**
+**Design-first workflow (user-oriented epics):**
 ```
-All tasks 🟢 → spawn agent-ux → auto-fix criticals → output todo list → human refines → ✅
+product-design agent creates mockup → design approved → tasks enter sprint →
+AI implements following mockup → human compares vs mockup → ✅
 ```
 
 **Task rules:**
@@ -165,7 +165,28 @@ If RETRO.md exists from a previous run → read and apply its lessons regardless
 - New tasks from new epics or scope changes get new sequential IDs
 - Ask user: "Any scope changes or new priorities since last sprint?"
 
-### Step 5: Present and Confirm
+### Step 5: Verify design prerequisites
+
+For each user-oriented epic with tasks in this sprint:
+
+1. Check `agile/BACKLOG.md` — is the epic's Design status ✅ Approved?
+   - If ✅ → proceed, reference the design in task Tech section:
+     ```
+     - **Design:** docs/ui-specs/[epic-name].md + mockup at frontend/src/mockups/[epic-name]/
+     ```
+   - If NOT ✅ → **STOP**. Tell the user:
+     > "EPIC-XX is user-oriented but design is not approved yet. Run product-design agent first."
+
+2. For technical epics → no design needed, proceed directly
+
+3. Reference the UI spec's acceptance criteria in each task's "Accept when (AI implementation)" section — copy the specific criteria from `docs/ui-specs/[epic-name].md`
+
+**Why this matters:**
+- Agent-frontend has interactive mockups + concrete specs to follow → fewer UX mistakes
+- Human refinement at sprint end compares implementation against design → objective review
+- Future sprints reuse and extend the same spec → consistency across iterations
+
+### Step 6: Present and Confirm
 
 Present the sprint plan to the user in a clear summary:
 

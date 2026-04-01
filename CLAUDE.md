@@ -289,8 +289,17 @@ Available skills: /office-hours, /plan-ceo-review, /plan-eng-review,
 /document-release, /codex, /cso, /autoplan, /careful, /freeze, /guard,
 /unfreeze, /gstack-upgrade.
 
-**Planning flow:** /office-hours → /plan-ceo-review → /plan-eng-review → /plan-sprint
-Run `/plan-sprint` immediately after `/plan-eng-review` to create Epics, Tasks, and Sprint backlog.
+**Planning flow:**
+```
+/office-hours → /plan-ceo-review → /plan-eng-review → /product-owner-review
+                                                              ↓
+                                        technical-epic → /plan-sprint (directly)
+                                        user-oriented-epic → product-design agent → design approved → /plan-sprint
+```
+
+- `/product-owner-review` breaks plan into epics, classifies as technical or user-oriented
+- User-oriented epics MUST have design approved before entering sprint
+- Technical epics go straight to `/plan-sprint`
 
 If gstack skills aren't working, run:
 cd .claude/skills/gstack && ./setup
