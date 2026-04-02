@@ -55,6 +55,8 @@ agile/templates/*
 .claude/skills/product-owner-review/SKILL.md
 .claude/skills/gitnexus/SKILL.md (optional — code navigation)
 .claude/skills/rust/SKILL.md
+.claude/skills/typescript/SKILL.md
+.claude/skills/postgres/SKILL.md
 ```
 
 **NEVER overwrite (project-specific):**

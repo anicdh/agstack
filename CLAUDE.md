@@ -102,6 +102,11 @@ Frontend is React SPA, backend is NestJS REST API, heavy jobs processed by Rust 
 - DO NOT use `console.log` — use injected `Logger`
 - See `.claude/agents/agent-api.md` for full checklist and anti-patterns
 
+### TypeScript — All TS/TSX (`/api`, `/frontend`)
+
+- **Before writing any `.ts`/`.tsx` file, READ `.claude/skills/typescript/SKILL.md`** — strict mode rules, type safety, async patterns
+- **Before any Prisma/DB work, READ `.claude/skills/postgres/SKILL.md`** — schema design, migrations, query patterns
+
 ### Rust Jobs (`/jobs`)
 
 - **Before writing any `.rs` file, READ `.claude/skills/rust/SKILL.md`** — error handling, async patterns, type safety
