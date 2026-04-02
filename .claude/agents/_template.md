@@ -3,6 +3,12 @@
 ## Role
 [Example: "Frontend features", "API modules", "Rust job worker", "Full-stack feature X"]
 
+## Required Reading (BEFORE any code)
+1. `.claude/rules/anti-hallucination.md` — every claim needs evidence
+2. [Stack-specific docs — e.g., ux-guide.md for frontend, rust SKILL.md for jobs]
+3. `CLAUDE.md` section "Reuse Map" for your stack
+4. If GitNexus available (`npx gitnexus status`): use it for code navigation
+
 ## Assigned Areas
 - [Folder/module responsible for]
 - [Example: /frontend/src/features/dashboard]

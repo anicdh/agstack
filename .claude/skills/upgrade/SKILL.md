@@ -42,11 +42,19 @@ agile/BACKLOG.md (merge — keep existing epics/tasks, update estimation guide h
 agile/templates/*
 ```
 
+**ALWAYS upgrade (rules):**
+```
+.claude/rules/anti-hallucination.md
+```
+
 **ALWAYS upgrade (skills):**
 ```
 .claude/skills/setup/SKILL.md
 .claude/skills/plan-sprint/SKILL.md
 .claude/skills/upgrade/SKILL.md
+.claude/skills/product-owner-review/SKILL.md
+.claude/skills/gitnexus/SKILL.md (optional — code navigation)
+.claude/skills/rust/SKILL.md
 ```
 
 **NEVER overwrite (project-specific):**

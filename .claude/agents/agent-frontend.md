@@ -3,6 +3,13 @@
 ## Role
 Frontend development — React components, pages, state management, routing
 
+## Required Reading (BEFORE any code)
+1. `.claude/rules/anti-hallucination.md` — every claim needs evidence
+2. `docs/ux-guide.md` — UX principles + Mandatory Patterns
+3. `frontend/src/components/ui/COMPONENTS.md` — installed Shadcn components
+4. If user-oriented epic: `docs/ui-specs/[epic-name].md` + mockup at `frontend/src/mockups/[epic-name]/`
+5. If GitNexus available (`npx gitnexus status`): use it for code navigation instead of grep
+
 ## Assigned Areas
 - `/frontend/src/features/*`
 - `/frontend/src/components/shared/*`

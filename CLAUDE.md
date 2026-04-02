@@ -104,6 +104,7 @@ Frontend is React SPA, backend is NestJS REST API, heavy jobs processed by Rust 
 
 ### Rust Jobs (`/jobs`)
 
+- **Before writing any `.rs` file, READ `.claude/skills/rust/SKILL.md`** — error handling, async patterns, type safety
 - Each job type = 1 file: `src/jobs/{job_name}.rs`, implement `JobRunner` trait
 - Error: custom `AppError` enum, all functions return `Result<T, AppError>`, NO `.unwrap()` in production
 - Logging: `tracing` crate with `#[instrument]`, structured JSON
@@ -204,10 +205,12 @@ Frontend is React SPA, backend is NestJS REST API, heavy jobs processed by Rust 
 ## Multi-Agent Rules
 
 ### READ before starting
-1. Read this file (CLAUDE.md) to understand the project
-2. Read `.claude/agents/[your-name].md` to understand your context
-3. Read ARCHITECTURE.md if you need to understand architecture
-4. Read `agile/sprints/current.md` to know current sprint
+1. Read `.claude/rules/anti-hallucination.md` — MANDATORY for all agents
+2. Read this file (CLAUDE.md) to understand the project
+3. Read `.claude/agents/[your-name].md` — includes your Required Reading list
+4. Read ARCHITECTURE.md if you need to understand architecture
+5. Read `agile/sprints/current.md` to know current sprint
+6. Check GitNexus: `npx gitnexus status` — if available, use it for code navigation (see `.claude/skills/gitnexus/SKILL.md`)
 
 ### WRITE while working
 - WRITE to `.claude/agents/[your-name].md` — DO NOT edit CLAUDE.md

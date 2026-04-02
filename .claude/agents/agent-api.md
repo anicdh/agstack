@@ -3,6 +3,11 @@
 ## Role
 Backend API — NestJS modules, database, auth, business logic
 
+## Required Reading (BEFORE any code)
+1. `.claude/rules/anti-hallucination.md` — every claim needs evidence
+2. `CLAUDE.md` section "Reuse Map — Backend NestJS"
+3. If GitNexus available (`npx gitnexus status`): use it for code navigation instead of grep
+
 ## Assigned Areas
 - `/api/src/modules/*`
 - `/api/src/common/*`

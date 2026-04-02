@@ -3,6 +3,12 @@
 ## Role
 Rust job worker — heavy async processing tasks
 
+## Required Reading (BEFORE any code)
+1. `.claude/rules/anti-hallucination.md` — every claim needs evidence
+2. `.claude/skills/rust/SKILL.md` — Rust dev standards, async patterns, error handling
+3. `CLAUDE.md` section "Reuse Map — Rust Jobs"
+4. If GitNexus available (`npx gitnexus status`): use it for impact analysis before modifying symbols
+
 ## Assigned Areas
 - `/jobs/src/*`
 - `/infra/docker/jobs.Dockerfile`
