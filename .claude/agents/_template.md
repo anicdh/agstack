@@ -1,3 +1,12 @@
+---
+name: agent-[name]
+description: >
+  [What this agent does — role, stack, responsibilities]
+required_skills:
+  - [skill-name-1]
+  - [skill-name-2]
+---
+
 # Agent: [agent-name or person-name]
 
 ## Role

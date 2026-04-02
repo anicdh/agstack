@@ -1,3 +1,12 @@
+---
+name: postgres-prisma
+description: >
+  ALWAYS read this BEFORE modifying Prisma schema, creating migrations,
+  or writing database queries. Covers schema design, migration safety,
+  query patterns. MANDATORY for agent-api.
+invocation: auto
+---
+
 # PostgreSQL + Prisma Development Standards
 
 > **MANDATORY:** agent-api MUST read this file before writing or modifying any Prisma schema, migration, or database query.

@@ -1,3 +1,12 @@
+---
+name: frontend-ui
+description: >
+  ALWAYS read this BEFORE writing or modifying any React UI component (.tsx).
+  Covers Tailwind conventions, Shadcn component map, layout patterns,
+  responsive design, accessibility. MANDATORY for agent-frontend.
+invocation: auto
+---
+
 # Frontend UI Skill — Tailwind + Shadcn/ui
 
 > **MANDATORY:** agent-frontend MUST read this file before writing or modifying any `.tsx` file with UI.

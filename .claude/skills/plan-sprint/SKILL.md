@@ -1,3 +1,12 @@
+---
+name: plan-sprint
+description: >
+  Use when starting a new sprint or planning the next sprint after
+  the current one completes. Converts eng review output into epics,
+  tasks, and sprint backlog. Run after /plan-eng-review.
+invocation: manual
+---
+
 # /plan-sprint — Sprint Planning from Eng Review Output
 
 > Converts the output of `/plan-eng-review` into actionable Epics, Tasks, and a Sprint backlog.

@@ -1,3 +1,12 @@
+---
+name: upgrade
+description: >
+  Use when pulling latest agStack boilerplate updates into an
+  existing project. Merges convention files without overwriting
+  project-specific code.
+invocation: manual
+---
+
 # /upgrade — Pull agStack boilerplate updates into existing project
 
 > Fetches the latest agStack boilerplate files and merges them into the current project

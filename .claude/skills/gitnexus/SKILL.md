@@ -1,3 +1,12 @@
+---
+name: gitnexus
+description: >
+  Use when navigating large codebases, analyzing blast radius before
+  refactoring, or tracing execution flows. Optional — requires
+  'npx gitnexus analyze' to initialize.
+invocation: manual
+---
+
 # GitNexus — Codebase Intelligence (Optional)
 
 > **Optional skill.** Enable by running `npx gitnexus analyze` in project root.

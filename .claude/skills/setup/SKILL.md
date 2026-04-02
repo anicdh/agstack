@@ -1,3 +1,12 @@
+---
+name: setup
+description: >
+  Use when initializing a new project from agStack boilerplate.
+  Copies templates, replaces project name, installs deps, starts
+  Docker, runs migrations. Run once at project start.
+invocation: manual
+---
+
 # /setup — Project Onboarding
 
 > Progressive setup for new projects using this starter kit.

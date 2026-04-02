@@ -1,3 +1,12 @@
+---
+name: agent-jobs
+description: >
+  Rust job worker agent — Tokio async runtime, Redis consumer,
+  heavy processing tasks, error handling, and retry logic.
+required_skills:
+  - rust
+---
+
 # Agent: jobs
 
 ## Role

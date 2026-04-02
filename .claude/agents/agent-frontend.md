@@ -1,3 +1,13 @@
+---
+name: agent-frontend
+description: >
+  Frontend agent — React 18, TypeScript, TailwindCSS, Shadcn/ui,
+  Zustand, React Query, routing, and responsive UI development.
+required_skills:
+  - typescript
+  - frontend-ui
+---
+
 # Agent: frontend
 
 ## Role

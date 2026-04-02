@@ -1,3 +1,12 @@
+---
+name: rust-dev
+description: >
+  ALWAYS read this BEFORE writing or modifying any Rust code (.rs files).
+  Covers error handling, async patterns, type safety, and documentation
+  requirements. MANDATORY for agent-jobs.
+invocation: auto
+---
+
 # Rust Development Standards
 
 > **MANDATORY:** agent-jobs MUST read this file before writing or modifying any `.rs` file.

@@ -1,3 +1,12 @@
+---
+name: product-owner-review
+description: >
+  Use after /plan-eng-review to classify epics as technical or
+  user-oriented, set priorities, and determine which epics need
+  design approval before entering a sprint.
+invocation: manual
+---
+
 # /product-owner-review — Epic Breakdown & Classification
 
 > Converts the CEO-reviewed plan into well-structured, classified Epics.

@@ -1,3 +1,12 @@
+---
+name: typescript-dev
+description: >
+  ALWAYS read this BEFORE writing or modifying any TypeScript (.ts/.tsx) files.
+  Covers strict mode rules, zero-any policy, Zod patterns, React hooks,
+  async patterns. MANDATORY for agent-api and agent-frontend.
+invocation: auto
+---
+
 # TypeScript Development Standards
 
 > **MANDATORY:** agent-api and agent-frontend MUST read this file before writing or modifying any `.ts` / `.tsx` file.

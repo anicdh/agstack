@@ -1,3 +1,13 @@
+---
+name: agent-product-design
+description: >
+  Product Designer agent — creates interactive UI mockups for
+  user-oriented epics before implementation. Designs layout,
+  interactions, flows, states, and responsive behavior.
+required_skills:
+  - frontend-ui
+---
+
 # Agent: product-design
 
 ## Role
