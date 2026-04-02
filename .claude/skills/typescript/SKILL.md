@@ -29,6 +29,7 @@ For any task involving TypeScript code:
 | React component, hook, page, form, state | `typescript-react` |
 | Promise patterns, retry, BullMQ, timeouts | `typescript-async` |
 | Zod schema, shared types, API contracts, validation | `typescript-zod` |
+| WebSocket, SSE, real-time communication | `typescript-websocket` |
 
 ## Quick Decision Tree
 
@@ -40,13 +41,15 @@ Writing TypeScript code?
 │   ├── Module/Service/Controller → typescript-nestjs
 │   ├── Prisma query/migration → typescript-nestjs + postgres skill
 │   ├── Job queue (BullMQ) → typescript-async
-│   └── DTO validation → typescript-zod
+│   ├── DTO validation → typescript-zod
+│   └── WebSocket/SSE gateway → typescript-websocket
 │
 ├── Frontend (React)?
 │   ├── Component/Page → typescript-react + frontend-ui skill
 │   ├── Hook/Query → typescript-react
 │   ├── Form → typescript-react + typescript-zod
-│   └── State (Zustand) → typescript-react
+│   ├── State (Zustand) → typescript-react
+│   └── Real-time/WebSocket hook → typescript-websocket
 │
 └── Shared types (/shared/)?
     └── Schema definition → typescript-zod
@@ -74,3 +77,4 @@ npx @biomejs/biome check .    # Zero lint errors
 
 - `frontend-ui` — Tailwind + Shadcn component map, layout patterns
 - `postgres` — Prisma schema, migrations, query patterns
+- `rust-websocket` — Rust WebSocket client patterns (parallel ecosystem)
