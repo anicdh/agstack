@@ -105,20 +105,170 @@ export { OrderCard };      // Components use named export
 | **Form state** (input values, touched) | react-hook-form | useState |
 | **Global client state** (auth session, theme) | Zustand | Context API |
 | **URL state** (filters, pagination, sort) | React Router searchParams | useState |
+| **Dependency injection** (services, config) | Context Provider | Zustand / props |
+| **Compound component** (Tabs, Accordion) | Context Provider | Zustand / props drilling |
+| **Library wiring** (QueryClient, Theme) | Context Provider | — |
 
 ### Decision Flowchart
 
 ```
 Need to manage state?
-├── YES: Is it data from the server?
-│   ├── YES → Use React Query (useQuery/useMutation)
-│   └── NO: Is it global (multiple features)?
-│       ├── YES → Use Zustand store
-│       └── NO: Is it form input?
-│           ├── YES → Use react-hook-form
-│           └── NO (UI state) → useState
-└── NO: Use props/composition
+├── Is it data from the server?
+│   └── YES → React Query (useQuery/useMutation)
+│
+├── Is it dependency injection or library wiring?
+│   └── YES → Context Provider (rarely changes, no re-render concern)
+│
+├── Is it compound component communication? (parent ↔ children)
+│   └── YES → Context Provider (scoped to component subtree)
+│
+├── Is it global client state? (auth, theme, sidebar)
+│   ├── Changes frequently + many consumers → Zustand (selector-based, no re-render)
+│   └── Changes rarely + few consumers → Context Provider is OK
+│
+├── Is it form input?
+│   └── YES → react-hook-form
+│
+├── Is it URL state? (filters, pagination)
+│   └── YES → React Router searchParams
+│
+├── Is it local UI state? (modal open, toggle)
+│   └── YES → useState
+│
+└── None of the above → props / composition
 ```
+
+### Context Provider vs Zustand — When to Use Which
+
+**Use Context Provider when:**
+
+```typescript
+// 1. DEPENDENCY INJECTION — providing services/config down the tree
+//    Value rarely changes, context exists to avoid prop drilling of "infrastructure"
+const ApiClientContext = createContext<ApiClient | null>(null);
+
+function ApiClientProvider({ children }: { children: ReactNode }) {
+  const client = useMemo(() => new ApiClient(config), [config]);
+  return (
+    <ApiClientContext.Provider value={client}>
+      {children}
+    </ApiClientContext.Provider>
+  );
+}
+
+// 2. COMPOUND COMPONENTS — parent-child coordination
+//    Context scoped to a component subtree, not global
+const TabsContext = createContext<TabsState | null>(null);
+
+function Tabs({ value, onValueChange, children }: TabsProps) {
+  return (
+    <TabsContext.Provider value={{ value, onValueChange }}>
+      <div role="tablist">{children}</div>
+    </TabsContext.Provider>
+  );
+}
+
+function Tab({ value, children }: TabProps) {
+  const ctx = useContext(TabsContext);  // Reads from nearest parent Tabs
+  return (
+    <button
+      role="tab"
+      aria-selected={ctx?.value === value}
+      onClick={() => ctx?.onValueChange(value)}
+    >
+      {children}
+    </button>
+  );
+}
+
+// 3. LIBRARY WIRING — required by third-party libraries
+//    QueryClientProvider, ThemeProvider, FormProvider, etc.
+<QueryClientProvider client={queryClient}>
+  <ThemeProvider defaultTheme="light">
+    <App />
+  </ThemeProvider>
+</QueryClientProvider>
+
+// 4. RARELY-CHANGING GLOBAL STATE — theme, locale, feature flags
+//    If it changes <1 time per session, re-renders are not a concern
+const FeatureFlagContext = createContext<FeatureFlags>(defaultFlags);
+```
+
+**Use Zustand when:**
+
+```typescript
+// 1. FREQUENTLY CHANGING STATE — auth, UI preferences, notifications
+//    Zustand selectors prevent unnecessary re-renders
+const useAuthStore = create<AuthState>((set) => ({
+  user: null,
+  token: null,
+  login: async (creds) => { /* ... */ },
+  logout: () => set({ user: null, token: null }),
+}));
+
+// Only re-renders when `user` changes, not when `token` changes
+const user = useAuthStore((state) => state.user);
+
+// 2. MULTIPLE CONSUMERS across different features
+//    Context would cause re-renders in ALL consumers when ANY value changes
+// ❌ Context: ALL consumers re-render when sidebar OR modal OR theme changes
+const UIContext = createContext({ sidebar: false, modal: null, theme: "light" });
+
+// ✅ Zustand: each consumer only re-renders for the value it selects
+const useSidebar = () => useUIStore((s) => s.sidebarOpen);
+const useModal = () => useUIStore((s) => s.activeModal);
+
+// 3. STATE WITH COMPLEX ACTIONS — computed values, middleware
+const useCartStore = create<CartState>((set, get) => ({
+  items: [],
+  addItem: (item) => set((s) => ({ items: [...s.items, item] })),
+  total: () => get().items.reduce((sum, i) => sum + i.price, 0),
+}));
+```
+
+### The Re-render Problem with Context
+
+```typescript
+// ❌ WRONG — Context re-renders ALL consumers when ANY property changes
+const AppContext = createContext({
+  user: null,        // changes on login
+  theme: "light",    // changes rarely
+  sidebarOpen: false // changes often
+});
+
+// Component that only needs theme still re-renders when sidebarOpen changes!
+function ThemeDisplay() {
+  const { theme } = useContext(AppContext);  // Re-renders on EVERY context change
+  return <div>{theme}</div>;
+}
+
+// ✅ CORRECT — Split into separate contexts OR use Zustand
+// Option A: Separate contexts (OK for 2-3 domains)
+<UserProvider>
+  <ThemeProvider>
+    <UIProvider>
+      <App />
+    </UIProvider>
+  </ThemeProvider>
+</UserProvider>
+
+// Option B: Zustand with selectors (better for 3+ domains)
+const useTheme = () => useAppStore((s) => s.theme);      // Only re-renders on theme change
+const useSidebar = () => useAppStore((s) => s.sidebarOpen); // Only re-renders on sidebar change
+```
+
+### Quick Reference: Provider vs Zustand
+
+| Criterion | Context Provider | Zustand |
+|-----------|-----------------|---------|
+| **Update frequency** | Rarely (config, DI, theme) | Often (UI state, auth) |
+| **Consumer count** | Few (<5 components) | Many (across features) |
+| **Re-render control** | No selector — all consumers re-render | Selector-based — granular |
+| **Scope** | Subtree (compound components) | Global (any component) |
+| **DevTools** | React DevTools | Zustand DevTools middleware |
+| **SSR** | Built-in support | Needs hydration handling |
+| **Boilerplate** | createContext + Provider + useContext | create() + use hook |
+| **Testing** | Wrap in Provider | No wrapper needed |
 
 ---
 

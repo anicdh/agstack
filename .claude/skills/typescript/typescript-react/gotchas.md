@@ -539,6 +539,97 @@ function OrderDetailComponent({ orderId }: { orderId: string }) {
 
 ---
 
+## Context Provider for Frequently-Changing Global State
+
+### Problem: All Consumers Re-render on Every State Change
+
+```typescript
+// WRONG: Single context for multiple unrelated values
+interface AppState {
+  user: User | null;
+  theme: "light" | "dark";
+  sidebarOpen: boolean;
+  notificationCount: number;
+}
+
+const AppContext = createContext<AppState>(/* ... */);
+
+function AppProvider({ children }: { children: ReactNode }) {
+  const [state, setState] = useState<AppState>(initialState);
+  return (
+    <AppContext.Provider value={state}>
+      {children}
+    </AppContext.Provider>
+  );
+}
+
+// 🐛 Bug: ThemeToggle only reads `theme`, but re-renders when
+// sidebarOpen, notificationCount, or user changes too!
+function ThemeToggle() {
+  const { theme } = useContext(AppContext);
+  return <Button>{theme}</Button>;
+}
+
+// 🐛 Bug: NotificationBadge updates every time sidebar opens/closes
+function NotificationBadge() {
+  const { notificationCount } = useContext(AppContext);
+  return <Badge>{notificationCount}</Badge>;
+}
+```
+
+```typescript
+// CORRECT: Use Zustand with selectors for frequently-changing multi-consumer state
+const useAppStore = create<AppState>((set) => ({
+  user: null,
+  theme: "light",
+  sidebarOpen: false,
+  notificationCount: 0,
+  toggleSidebar: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })),
+  setTheme: (theme) => set({ theme }),
+}));
+
+// ✅ Only re-renders when `theme` changes
+function ThemeToggle() {
+  const theme = useAppStore((s) => s.theme);
+  const setTheme = useAppStore((s) => s.setTheme);
+  return <Button onClick={() => setTheme(theme === "light" ? "dark" : "light")}>{theme}</Button>;
+}
+
+// ✅ Only re-renders when `notificationCount` changes
+function NotificationBadge() {
+  const count = useAppStore((s) => s.notificationCount);
+  return <Badge>{count}</Badge>;
+}
+```
+
+```typescript
+// ALSO CORRECT: Context is fine for rarely-changing values like DI or compound components
+// DI — ApiClient instance created once, never changes
+const ApiContext = createContext<ApiClient | null>(null);
+
+function useApiClient() {
+  const client = useContext(ApiContext);
+  if (!client) throw new Error("ApiContext not found");
+  return client;
+}
+
+// Compound component — context scoped to subtree, not global
+const AccordionContext = createContext<{ openItem: string | null }>({ openItem: null });
+
+function Accordion({ children }: { children: ReactNode }) {
+  const [openItem, setOpenItem] = useState<string | null>(null);
+  return (
+    <AccordionContext.Provider value={{ openItem, setOpenItem }}>
+      {children}
+    </AccordionContext.Provider>
+  );
+}
+```
+
+**Rule of thumb:** If >5 components consume the state AND it changes more than once per user session → Zustand. If it's dependency injection, library wiring, or compound component communication → Context Provider.
+
+---
+
 ## Checklist Before Code Review
 
 1. **useEffect**: Only for side effects, not derived state (use useMemo)?
@@ -553,3 +644,4 @@ function OrderDetailComponent({ orderId }: { orderId: string }) {
 10. **Action buttons**: `flex gap-2 flex-wrap` to prevent overlap?
 11. **Query keys**: Using queryKeys factory, not hardcoded strings?
 12. **Props drilling**: Extracted to custom hook if >2 levels?
+13. **State management**: Context for DI/compound, Zustand for global, React Query for server?
