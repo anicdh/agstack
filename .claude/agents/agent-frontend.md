@@ -6,8 +6,8 @@ Frontend development — React components, pages, state management, routing
 ## Required Reading (BEFORE any code)
 1. `.claude/rules/anti-hallucination.md` — every claim needs evidence
 2. `.claude/skills/typescript/SKILL.md` — strict TS rules, React patterns, Zod schemas
-3. `docs/ux-guide.md` — UX principles + Mandatory Patterns
-4. `frontend/src/components/ui/COMPONENTS.md` — installed Shadcn components
+3. `.claude/skills/frontend-ui/SKILL.md` — Tailwind + Shadcn component map, layout patterns, responsive
+4. `docs/ux-guide.md` — UX principles + Mandatory Patterns
 5. If user-oriented epic: `docs/ui-specs/[epic-name].md` + mockup at `frontend/src/mockups/[epic-name]/`
 6. If GitNexus available (`npx gitnexus status`): use it for code navigation instead of grep
 

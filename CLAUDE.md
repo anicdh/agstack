@@ -71,8 +71,8 @@ Frontend is React SPA, backend is NestJS REST API, heavy jobs processed by Rust 
 ### Frontend (`/frontend`)
 
 > **Before building any UI feature, READ these files:**
-> 1. `docs/ux-guide.md` — UX principles, component decisions, AND **Mandatory Patterns** section (toast, invalidation, spacing, loading, responsive)
-> 2. `frontend/src/components/ui/COMPONENTS.md` — installed Shadcn components
+> 1. `.claude/skills/frontend-ui/SKILL.md` — Tailwind conventions, Shadcn component map, layout patterns, responsive
+> 2. `docs/ux-guide.md` — UX principles, component decisions, AND **Mandatory Patterns** section (toast, invalidation, spacing, loading, responsive)
 >
 > **Non-negotiable UX rules (from ux-guide.md Mandatory Patterns):**
 > - Every mutation → toast success + toast error + `invalidateQueries`
