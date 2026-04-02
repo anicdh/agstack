@@ -23,84 +23,77 @@ flowchart TD
     DR -->|"Needs Changes"| PD
 
     subgraph SprintPlanning["Sprint Planning"]
-        SprintDirect --> AskDevs["Ask: Who is participating?\n(e.g., an, minh, duc)"]
-        AskDevs --> CalcCap["Calculate capacity\nN devs x 25-30 pts"]
+        SprintDirect --> AskDevs["Ask: Who is participating?\n(e.g., an, minh)"]
+        AskDevs --> CalcCap["Capacity = N devs x 25-30 pts"]
         CalcCap --> AssignTasks["AI assigns tasks per dev\n(dependency, domain, balance)"]
         AssignTasks --> DevConfirm["All devs confirm assignments"]
+        DevConfirm --> CreateBranch["Create sprint/sprint-XX\nfrom main"]
     end
 
-    DevConfirm --> SprintStart
+    CreateBranch --> SprintExec
 
-    subgraph SprintStart["Sprint Execution (Standard Mode — Parallel Devs)"]
+    subgraph SprintExec["Sprint Execution (Parallel Devs, Sequential Agents)"]
         direction TB
 
         subgraph DevA["Dev An (13 pts)"]
             direction TB
             A_API["agent-api\nTASK-021, TASK-022"]
-            A_PR1["PR → merge to main"]
+            A_PR1["PR → sprint branch\n(/review by other dev)"]
             A_FE["agent-frontend\nTASK-025"]
-            A_PR2["PR → merge to main"]
+            A_PR2["PR → sprint branch\n(/review by other dev)"]
             A_API --> A_PR1 --> A_FE --> A_PR2
         end
 
         subgraph DevB["Dev Minh (12 pts)"]
             direction TB
             B_API["agent-api\nTASK-023"]
-            B_PR1["PR → merge to main"]
+            B_PR1["PR → sprint branch\n(/review by other dev)"]
             B_FE["agent-frontend\nTASK-026, TASK-027"]
-            B_PR2["PR → merge to main"]
+            B_PR2["PR → sprint branch\n(/review by other dev)"]
             B_API --> B_PR1 --> B_FE --> B_PR2
         end
     end
 
-    A_PR1 -.->|"notify: shared types merged\nother devs rebase"| B_FE
-    B_PR1 -.->|"notify: API merged\nother devs rebase"| A_FE
+    A_PR1 -.->|"notify + rebase"| B_FE
+    B_PR1 -.->|"notify + rebase"| A_FE
 
-    subgraph SyncPoints["Sync Points"]
-        direction LR
-        S1["Sprint start\nConfirm assignments"]
-        S2["After each PR merge\nNotify team, rebase"]
-        S3["Before dependent task\nConfirm prerequisite merged"]
-    end
-
-    subgraph TaskLifecycle["Task Lifecycle (per task)"]
-        direction LR
-        TODO["⬜ Todo"] --> IP["🔵 In Progress\n(Dev's AI working)"]
-        IP --> IMPL["🟢 Implemented\n(AI done, checks pass)"]
-        IMPL --> REFINE["🔧 Refining\n(Dev polishes)"]
-        REFINE --> DONE["✅ Done\n(Dev signed off)"]
-    end
-
-    subgraph QualityGates["Quality Gates (per PR)"]
+    subgraph QAPhase["QA Phase (on sprint branch)"]
         direction TB
-        LINT["Biome lint + TypeCheck"]
-        RUNTIME["Runtime Verification\n(Server starts, no crash 10s)"]
-        CLAIMS["CLAIMS.md check\n(No file conflicts)"]
-        REVIEW["/review\n(Reviewed by OTHER dev)"]
-    end
-
-    subgraph SprintEnd["Sprint End"]
-        SHIP["All PRs merged to main"]
         QA["/qa\n(Full integration test)"]
         DESIGN_CHECK["/design-review\n(Compare vs Mockup)"]
+        FIX{"QA Pass?"}
+        HOTFIX["Fix on sprint branch\nRe-run QA"]
+    end
+
+    A_PR2 --> QA
+    B_PR2 --> QA
+    QA --> DESIGN_CHECK --> FIX
+    FIX -->|"No"| HOTFIX --> QA
+    FIX -->|"Yes"| MergeMain
+
+    subgraph MergeToMain["Merge to Main (Manual)"]
+        MergeMain["PR: sprint/sprint-XX → main\n(All devs approve)"]
+        MainClean["main updated\nCI/CD builds from clean code"]
+    end
+
+    MergeMain --> MainClean
+
+    subgraph SprintEnd["Sprint End"]
         RETRO_CHECK{"Issues detected?\n(carry-over, rejection,\nvelocity drop)"}
         RETRO["/retro\n(Retrospective)"]
         NEXT["Next /plan-sprint\n(Ask participants again)"]
     end
 
-    A_PR2 --> SHIP
-    B_PR2 --> SHIP
-    SHIP --> QA --> DESIGN_CHECK --> RETRO_CHECK
+    MainClean --> RETRO_CHECK
     RETRO_CHECK -->|"Yes"| RETRO --> NEXT
     RETRO_CHECK -->|"No"| NEXT
 
     style Planning fill:#e8f4fd,stroke:#2196F3
     style DesignPhase fill:#fff3e0,stroke:#FF9800
     style SprintPlanning fill:#e8f5e9,stroke:#4CAF50
-    style SprintStart fill:#f3e5f5,stroke:#9C27B0
+    style SprintExec fill:#f3e5f5,stroke:#9C27B0
     style DevA fill:#e1bee7,stroke:#8E24AA
     style DevB fill:#ce93d8,stroke:#7B1FA2
-    style SyncPoints fill:#e0f7fa,stroke:#00ACC1
-    style TaskLifecycle fill:#fff8e1,stroke:#FFC107
-    style QualityGates fill:#fce4ec,stroke:#E91E63
+    style QAPhase fill:#fff9c4,stroke:#F9A825
+    style MergeToMain fill:#c8e6c9,stroke:#2E7D32
     style SprintEnd fill:#e0f2f1,stroke:#009688

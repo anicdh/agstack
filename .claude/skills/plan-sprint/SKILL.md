@@ -260,19 +260,31 @@ After user confirms, ask them to choose a development mode:
 
 ### Step 6a: Standard Mode (Recommended)
 
-One branch per task, sequential, review each PR before moving on. For those who like things clean and controlled.
+One branch per task, sequential, review each PR. All PRs target the sprint branch — main stays clean.
 
-**Branch:** `feat/TASK-XXX-[description]` per task
+**Branch strategy:**
+```
+Solo:  main ← feat/TASK-XXX (PRs go directly to main)
+Team:  main ← sprint/sprint-XX ← feat/TASK-XXX (PRs go to sprint branch, sprint merges to main after QA)
+```
 
-**Workflow:**
+**Solo workflow:**
 1. Run agent-api tasks first (shared types + API endpoints)
 2. Each task gets its own branch: `git checkout -b feat/TASK-001-[name]`
-3. After each task: `/review` + `/qa` → PR to main → merge
-4. Then run agent-frontend tasks — API is already merged, no guessing
+3. After each task: `/review` → PR to main → merge
+4. Then run agent-frontend tasks — API is already merged
 5. Run agent-jobs tasks if any
-6. Every PR is reviewed and tested before the next task starts
+6. Sprint end: `/qa` + `/design-review` on main
 
-**Spawn prompt (sequential — solo mode):**
+**Team workflow:**
+1. Create sprint branch: `git checkout -b sprint/sprint-XX` from main
+2. Each dev runs agent-api tasks first → feature branch → PR to sprint branch → merge
+3. After each PR merge: notify team, other devs rebase from sprint branch
+4. Then each dev runs agent-frontend tasks → feature branch → PR to sprint branch
+5. Sprint end: `/qa` + `/design-review` on sprint branch
+6. QA passes → manual PR from `sprint/sprint-XX` → `main` (all devs approve)
+
+**Spawn prompt (solo):**
 ```
 You are agent-api. Read CLAUDE.md, then .claude/agents/agent-api.md,
 then agile/sprints/current.md. Your tasks this sprint: TASK-001, TASK-002.
@@ -281,25 +293,24 @@ commit, then report back for review before starting the next task.
 Follow the quality checklist in your agent file.
 ```
 
-After agent-api finishes all tasks and PRs are merged, spawn agent-frontend.
-
-**Spawn prompt (sequential — team mode):**
+**Spawn prompt (team):**
 ```
 You are agent-api working for [dev-name]. Read CLAUDE.md, then
 .claude/agents/agent-api.md, then .claude/agents/TEAM-RULES.md,
 then agile/sprints/current.md.
-Your tasks this sprint: TASK-XXX, TASK-XXX (assigned to [dev-name]).
+Sprint branch: sprint/sprint-XX. Your tasks: TASK-XXX, TASK-XXX.
 Before editing shared files, check .claude/agents/CLAIMS.md.
-Before starting a task, git pull --rebase origin main.
-For each task: create branch feat/TASK-XXX-[name], complete the task,
-commit, then report back for review before starting the next task.
+Before starting a task, git pull --rebase origin sprint/sprint-XX.
+For each task: create branch feat/TASK-XXX-[name] from sprint branch,
+complete the task, commit, then report back for review.
+PRs target sprint/sprint-XX (NOT main).
 Follow the quality checklist in your agent file.
 ```
 
 **Why this is the default:**
 - Each PR is small and easy to review
 - Frontend always has real, merged API to consume — no mocks needed
-- Clean git history — each feature is one branch, one PR
+- Team mode: main never receives unverified code — QA runs on sprint branch first
 - If something breaks, you know exactly which task caused it
 
 ### Step 6b: Hero Mode
