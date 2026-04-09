@@ -17,18 +17,11 @@ Types:
 - Run `cargo test`
 - Review diff
 
-## GitNexus Integration (MANDATORY)
+## GitNexus Integration (If Available)
 
-**BEFORE COMMIT, MUST follow order:**
+If GitNexus is initialized (`npx gitnexus status` returns index info), update the
+index before committing so AGENTS.md/CLAUDE.md stay in sync:
 
-1. Run `npx gitnexus analyze` to update index
-2. Stage AGENTS.md and CLAUDE.md along with code changes
-3. Commit everything in 1 commit
-
-**Reason:** GitNexus stats are embedded in AGENTS.md/CLAUDE.md.
-If you commit code first then analyze later, these 2 files will be in uncommitted state.
-
-**Commit flow:**
 ```bash
 # Step 1: Update GitNexus index (updates AGENTS.md, CLAUDE.md)
 npx gitnexus analyze
@@ -40,10 +33,12 @@ git add <your-files> AGENTS.md CLAUDE.md
 git commit -m "type(scope): description"
 ```
 
-**One-liner (if you want to stage everything):**
+**One-liner:**
 ```bash
 npx gitnexus analyze && git add -A && git commit -m "type(scope): description"
 ```
+
+If GitNexus is NOT initialized, just commit normally — skip the analyze step.
 
 ## Never Commit
 - Secrets, API keys

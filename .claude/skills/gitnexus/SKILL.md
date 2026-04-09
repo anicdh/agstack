@@ -94,6 +94,19 @@ npx gitnexus status 2>/dev/null
 - If output shows index info → use GitNexus commands
 - If error or "No index found" → fall back to grep/find (normal behavior)
 
+## Sub-Skills — Deep Dives
+
+This hub covers the basics. For detailed guidance, read the relevant sub-skill:
+
+| Situation | Read |
+|-----------|------|
+| First time using GitNexus, CLI reference | `gitnexus-cli/SKILL.md` |
+| Exploring unfamiliar codebase, onboarding | `gitnexus-exploring/SKILL.md` |
+| Blast radius analysis before changes | `gitnexus-impact-analysis/SKILL.md` |
+| Refactoring safely with GitNexus | `gitnexus-refactoring/SKILL.md` |
+| Debugging production issues, tracing flows | `gitnexus-debugging/SKILL.md` |
+| Understanding GitNexus internals | `gitnexus-guide/SKILL.md` |
+
 ## Index Freshness
 
 Re-index after:
