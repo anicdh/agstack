@@ -310,13 +310,15 @@ Team:  main ← sprint/sprint-XX ← feat/TASK-XXX (PRs go to sprint branch, spr
 
 **Solo workflow — with waves (`blocked_by:` declared):**
 1. Run Wave 0 tasks sequentially (same as without-waves flow above)
-2. After Wave 0 tasks are merged, spawn Wave 1 tasks in parallel using worktrees:
+2. **CRITICAL: Wait for Wave 0 PRs to be merged into the target branch BEFORE spawning Wave 1.**
+   Worktrees are created from the current HEAD — if Wave 0 code is not merged yet, Wave 1 agents will not see it and may recreate files that already exist, causing merge conflicts.
+3. After Wave 0 is merged, spawn Wave 1 tasks in parallel using worktrees:
    - Each task gets its own worktree via Agent tool with `isolation: "worktree"`
    - All wave-1 agents run simultaneously, each on its own branch
    - Each agent creates a PR when done
-3. User reviews and merges Wave 1 PRs
-4. If Wave 2 exists, repeat for Wave 2
-5. Sprint end: `/qa` + `/design-review` on main
+4. User reviews and merges Wave 1 PRs
+5. If Wave 2 exists, repeat (merge Wave 1 first, then spawn Wave 2)
+6. Sprint end: `/qa` + `/design-review` on main
 
 **Team workflow — without waves:**
 1. Create sprint branch: `git checkout -b sprint/sprint-XX` from main
@@ -329,13 +331,15 @@ Team:  main ← sprint/sprint-XX ← feat/TASK-XXX (PRs go to sprint branch, spr
 **Team workflow — with waves:**
 1. Create sprint branch: `git checkout -b sprint/sprint-XX` from main
 2. Run Wave 0 tasks sequentially (same as without-waves team flow)
-3. After Wave 0 tasks are merged to sprint branch, spawn Wave 1 tasks in parallel using worktrees:
+3. **CRITICAL: Wait for Wave 0 PRs to be merged into sprint branch BEFORE spawning Wave 1.**
+   Worktrees are created from the current HEAD — if Wave 0 code is not merged yet, Wave 1 agents will not see it.
+4. After Wave 0 is merged, spawn Wave 1 tasks in parallel using worktrees:
    - Each task gets its own worktree via Agent tool with `isolation: "worktree"`
    - All wave-1 agents run simultaneously, each on its own branch
    - Each agent creates a PR to sprint/sprint-XX
-4. User reviews and merges Wave 1 PRs to sprint branch
-5. Sprint end: `/qa` + `/design-review` on sprint branch
-6. QA passes → manual PR from `sprint/sprint-XX` → `main`
+5. User reviews and merges Wave 1 PRs to sprint branch
+6. Sprint end: `/qa` + `/design-review` on sprint branch
+7. QA passes → manual PR from `sprint/sprint-XX` → `main`
 
 > **⛔ NEVER use `git stash` to switch between tasks or branches.** Each task runs in its own worktree or branch. If a task is incomplete, commit WIP on the current branch and push it. Stash-then-checkout = lost work.
 > `git stash && <command> && git stash pop` in a single command chain is OK (e.g., stash to run tests). The rule bans stash-and-forget, not stash-and-pop-immediately.
