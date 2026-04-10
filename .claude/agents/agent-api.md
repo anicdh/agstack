@@ -27,6 +27,10 @@ Backend API — NestJS modules, database, auth, business logic
 - `/api/prisma/`
 - `/shared/types/*`
 
+## Git Workflow
+- **NEVER use `git stash` to switch between tasks or branches.** Each task runs in its own worktree or branch. If a task is incomplete, commit WIP on the current branch and push it. Stash-then-checkout = lost work.
+- `git stash && <command> && git stash pop` in a **single command chain** is OK (e.g., stash to run tests on clean state, then immediately pop). The rule bans stash-and-forget, not stash-and-pop-immediately.
+
 ## Reuse-First Rule — READ BEFORE YOU WRITE
 
 > **BEFORE creating any service/controller/dto, MUST check Reuse Map in CLAUDE.md.**

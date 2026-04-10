@@ -9,10 +9,10 @@
 
 ## Sprint Backlog
 
-| ID       | Task                          | Pts | Dev   | Agent          | Status          |
-|----------|-------------------------------|-----|-------|----------------|-----------------|
-| TASK-XXX | [Task name]                   | X   | [dev] | [agent]        | ⬜ Todo         |
-| TASK-XXX | [Task name]                   | X   | [dev] | [agent]        | ⬜ Todo         |
+| ID       | Task                          | Pts | Dev   | Agent          | blocked_by | touches               | Status          |
+|----------|-------------------------------|-----|-------|----------------|------------|-----------------------|-----------------|
+| TASK-XXX | [Task name]                   | X   | [dev] | [agent]        | —          | [dirs/files]          | ⬜ Todo         |
+| TASK-XXX | [Task name]                   | X   | [dev] | [agent]        | TASK-XXX   | [dirs/files]          | ⬜ Todo         |
 
 **Status legend:** ⬜ Todo → 🔵 In Progress → 🟢 Implemented → 🔧 Refining → ✅ Done
 

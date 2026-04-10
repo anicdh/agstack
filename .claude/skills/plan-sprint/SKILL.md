@@ -175,6 +175,7 @@ After all Epics and Tasks are in BACKLOG.md:
    - If past velocity exists in VELOCITY.md, use it as guide
    - Every selected task must contribute to the Sprint Goal
 5. **Populate SPRINT.md** using the template from `agile/templates/sprint.md`
+   - Each task should include `blocked_by:` (task IDs this task depends on, use — for no dependencies) and `touches:` (directories/files this task will modify, helps detect conflicts in parallel waves)
 6. **Mark selected tasks** as 🔵 in BACKLOG.md
 7. **Update `agile/sprints/current.md`** to point to the new sprint
 8. **Update `agile/VELOCITY.md`** — fill in previous sprint's actual velocity (Next Sprint Mode only)
@@ -223,6 +224,28 @@ For each user-oriented epic with tasks in this sprint:
 - Agent-frontend has interactive mockups + concrete specs to follow → fewer UX mistakes
 - Human refinement at sprint end compares implementation against design → objective review
 - Future sprints reuse and extend the same spec → consistency across iterations
+
+### Step 5.5: Wave Calculation (Standard Mode only)
+
+After task breakdown, if any tasks have `blocked_by:` values (not just —):
+
+1. **Check for circular dependencies:** if any task chain forms a cycle (A → B → A), STOP and warn:
+   "Circular dependency detected: TASK-X → TASK-Y → TASK-X. Fix blocked_by: fields before proceeding."
+2. **Topologically sort tasks into execution waves:**
+   - Wave 0: tasks with no dependencies (blocked_by = —)
+   - Wave 1: tasks whose dependencies are all in Wave 0
+   - Wave 2: tasks whose dependencies are all in Wave 0 or Wave 1 (v1: max 2 waves recommended)
+3. **Check for conflicts within each wave:**
+   - Compare `touches:` fields of all tasks in the same wave
+   - If paths overlap, warn user: "TASK-X and TASK-Y both touch [path]. Consider serializing them or accept merge-time conflict risk."
+   - If `touches:` is omitted, fall back to agent-level ownership boundaries from CLAUDE.md (coarser, may over-warn)
+4. **Display the wave plan:**
+   ```
+   Wave 0 (sequential): TASK-001
+   Wave 1 (parallel via worktrees): TASK-002, TASK-003, TASK-004
+   ```
+
+If no tasks have `blocked_by:` values, skip wave calculation — all tasks run sequentially as before (backward compatible).
 
 ### Step 6: Present and Confirm
 
@@ -277,7 +300,7 @@ Solo:  main ← feat/TASK-XXX (PRs go directly to main)
 Team:  main ← sprint/sprint-XX ← feat/TASK-XXX (PRs go to sprint branch, sprint merges to main after QA)
 ```
 
-**Solo workflow:**
+**Solo workflow — without waves (no `blocked_by:` declared):**
 1. Run agent-api tasks first (shared types + API endpoints)
 2. Each task gets its own branch: `git checkout -b feat/TASK-001-[name]`
 3. After each task: `/review` → PR to main → merge
@@ -285,7 +308,17 @@ Team:  main ← sprint/sprint-XX ← feat/TASK-XXX (PRs go to sprint branch, spr
 5. Run agent-jobs tasks if any
 6. Sprint end: `/qa` + `/design-review` on main
 
-**Team workflow:**
+**Solo workflow — with waves (`blocked_by:` declared):**
+1. Run Wave 0 tasks sequentially (same as without-waves flow above)
+2. After Wave 0 tasks are merged, spawn Wave 1 tasks in parallel using worktrees:
+   - Each task gets its own worktree via Agent tool with `isolation: "worktree"`
+   - All wave-1 agents run simultaneously, each on its own branch
+   - Each agent creates a PR when done
+3. User reviews and merges Wave 1 PRs
+4. If Wave 2 exists, repeat for Wave 2
+5. Sprint end: `/qa` + `/design-review` on main
+
+**Team workflow — without waves:**
 1. Create sprint branch: `git checkout -b sprint/sprint-XX` from main
 2. Each dev runs agent-api tasks first → feature branch → PR to sprint branch → merge
 3. After each PR merge: notify team, other devs rebase from sprint branch
@@ -293,16 +326,31 @@ Team:  main ← sprint/sprint-XX ← feat/TASK-XXX (PRs go to sprint branch, spr
 5. Sprint end: `/qa` + `/design-review` on sprint branch
 6. QA passes → manual PR from `sprint/sprint-XX` → `main` (all devs approve)
 
-**Spawn prompt (solo):**
+**Team workflow — with waves:**
+1. Create sprint branch: `git checkout -b sprint/sprint-XX` from main
+2. Run Wave 0 tasks sequentially (same as without-waves team flow)
+3. After Wave 0 tasks are merged to sprint branch, spawn Wave 1 tasks in parallel using worktrees:
+   - Each task gets its own worktree via Agent tool with `isolation: "worktree"`
+   - All wave-1 agents run simultaneously, each on its own branch
+   - Each agent creates a PR to sprint/sprint-XX
+4. User reviews and merges Wave 1 PRs to sprint branch
+5. Sprint end: `/qa` + `/design-review` on sprint branch
+6. QA passes → manual PR from `sprint/sprint-XX` → `main`
+
+> **⛔ NEVER use `git stash` to switch between tasks or branches.** Each task runs in its own worktree or branch. If a task is incomplete, commit WIP on the current branch and push it. Stash-then-checkout = lost work.
+> `git stash && <command> && git stash pop` in a single command chain is OK (e.g., stash to run tests). The rule bans stash-and-forget, not stash-and-pop-immediately.
+
+**Spawn prompt (sequential, solo):**
 ```
 You are agent-api. Read CLAUDE.md, then .claude/agents/agent-api.md,
 then agile/sprints/current.md. Your tasks this sprint: TASK-001, TASK-002.
 For each task: create branch feat/TASK-XXX-[name], complete the task,
 commit, then report back for review before starting the next task.
+NEVER use git stash to switch tasks. If incomplete, commit WIP and push.
 Follow the quality checklist in your agent file.
 ```
 
-**Spawn prompt (team):**
+**Spawn prompt (sequential, team):**
 ```
 You are agent-api working for [dev-name]. Read CLAUDE.md, then
 .claude/agents/agent-api.md, then .claude/agents/TEAM-RULES.md,
@@ -313,14 +361,46 @@ Before starting a task, git pull --rebase origin sprint/sprint-XX.
 For each task: create branch feat/TASK-XXX-[name] from sprint branch,
 complete the task, commit, then report back for review.
 PRs target sprint/sprint-XX (NOT main).
+NEVER use git stash to switch tasks. If incomplete, commit WIP and push.
 Follow the quality checklist in your agent file.
 ```
+
+**Spawn prompt (wave 1+ parallel, solo):**
+```
+You are [agent-type]. Read CLAUDE.md, then .claude/agents/[agent-name].md,
+then agile/sprints/current.md. Your task: TASK-XXX.
+You are running in a worktree — your working directory is isolated.
+Complete the task, commit, create a PR to main, then report back.
+NEVER use git stash to switch tasks. If you can't finish, commit WIP and push.
+Follow the quality checklist in your agent file.
+```
+
+**Spawn prompt (wave 1+ parallel, team):**
+```
+You are [agent-type] working for [dev-name]. Read CLAUDE.md, then
+.claude/agents/[agent-name].md, then .claude/agents/TEAM-RULES.md,
+then agile/sprints/current.md. Your task: TASK-XXX.
+Sprint branch: sprint/sprint-XX. You are running in a worktree — isolated.
+Complete the task, commit, create a PR to sprint/sprint-XX, then report back.
+NEVER use git stash to switch tasks. If you can't finish, commit WIP and push.
+Follow the quality checklist in your agent file.
+```
+
+**If a wave-1 agent fails:**
+- The worktree branch persists with its commits. No work is lost.
+- Other wave-1 agents are unaffected (each has its own isolated worktree).
+- User can resume by spawning a new agent targeting the same branch, or abandon it.
+- Successful agents in the same wave merge their PRs independently.
+
+**Worktree cleanup at sprint end:**
+Run `git worktree list` to audit. Remove orphans with `git worktree remove <path>`.
 
 **Why this is the default:**
 - Each PR is small and easy to review
 - Frontend always has real, merged API to consume — no mocks needed
 - Team mode: main never receives unverified code — QA runs on sprint branch first
 - If something breaks, you know exactly which task caused it
+- Waves enable parallelism for independent tasks without merge chaos
 
 ### Step 6b: Hero Mode
 

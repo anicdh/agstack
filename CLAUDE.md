@@ -228,7 +228,7 @@ Frontend is React SPA, backend is NestJS REST API, heavy jobs processed by Rust 
 
 Choose a mode when starting a sprint via `/plan-sprint`:
 
-**Standard Mode (recommended)** — sequential agents, 1 branch per task, 1 PR per task.
+**Standard Mode (recommended)** — sequential for blockers, parallel fan-out via worktrees for independent tasks. 1 branch per task, 1 PR per task. See `/plan-sprint` Step 6a.
 **Hero Mode** — parallel agents, 1 branch per sprint, 1 PR.
 
 See `/plan-sprint` Step 6 for full details on each mode.
