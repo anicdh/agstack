@@ -173,11 +173,11 @@ Monday's release includes both sprint features and critical hotfixes from Friday
 
 When `/plan-sprint` creates your sprint, you choose how to work:
 
-**Standard Mode** (recommended) — one branch per task, agents work sequentially. Agent-api finishes and merges first, then agent-frontend starts with real API to consume. Each task gets its own PR — small, easy to review, clean git history. If something breaks, you know exactly which task caused it.
+**Standard Mode** (recommended) — one branch per task, one PR per task. Blocker tasks run sequentially first. Once blockers are merged, independent tasks fan out in parallel via git worktrees (each agent gets its own isolated directory, zero conflicts). Declare dependencies with `blocked_by:` in the sprint backlog and the wave calculation handles the rest. Small PRs, clean history, and parallel speed where it's safe.
 
 **Hero Mode** — one branch per sprint, multiple agents grinding simultaneously. All agents commit on the same branch, staying in their file ownership lanes. When an agent finishes early, it picks up independent tasks. One big PR at the end of the sprint. Faster, but you need to be comfortable reviewing a larger diff.
 
-Pick Standard when tasks depend on each other (most sprints). Pick Hero when tasks are independent and you want maximum speed.
+Pick Standard for most sprints (it now supports parallelism where tasks are independent). Pick Hero when all tasks are independent and you want a single branch.
 
 ## Scripts
 
