@@ -352,6 +352,9 @@ For each task: create branch feat/TASK-XXX-[name], complete the task,
 commit, then report back for review before starting the next task.
 NEVER use git stash to switch tasks. If incomplete, commit WIP and push.
 Follow the quality checklist in your agent file.
+BEFORE marking any task done: read its "Accept when" criteria, verify EACH
+criterion (run tests, lint, runtime check), and report results explicitly.
+Do not add features, abstractions, or code not required by the task.
 ```
 
 **Spawn prompt (sequential, team):**
@@ -367,6 +370,9 @@ complete the task, commit, then report back for review.
 PRs target sprint/sprint-XX (NOT main).
 NEVER use git stash to switch tasks. If incomplete, commit WIP and push.
 Follow the quality checklist in your agent file.
+BEFORE marking any task done: read its "Accept when" criteria, verify EACH
+criterion (run tests, lint, runtime check), and report results explicitly.
+Do not add features, abstractions, or code not required by the task.
 ```
 
 **Spawn prompt (wave 1+ parallel, solo):**
@@ -377,6 +383,8 @@ You are running in a worktree — your working directory is isolated.
 Complete the task, commit, create a PR to main, then report back.
 NEVER use git stash to switch tasks. If you can't finish, commit WIP and push.
 Follow the quality checklist in your agent file.
+BEFORE marking done: verify EACH "Accept when" criterion with actual commands.
+Do not add features, abstractions, or code not required by the task.
 ```
 
 **Spawn prompt (wave 1+ parallel, team):**
@@ -388,6 +396,8 @@ Sprint branch: sprint/sprint-XX. You are running in a worktree — isolated.
 Complete the task, commit, create a PR to sprint/sprint-XX, then report back.
 NEVER use git stash to switch tasks. If you can't finish, commit WIP and push.
 Follow the quality checklist in your agent file.
+BEFORE marking done: verify EACH "Accept when" criterion with actual commands.
+Do not add features, abstractions, or code not required by the task.
 ```
 
 **If a wave-1 agent fails:**
@@ -439,6 +449,8 @@ After completing each task, update your agent file and commit immediately.
 If shared types from agent-api are not committed yet, use a temporary local
 interface and replace it when the types appear on the branch.
 When you finish your tasks, check if there are independent tasks you can pick up.
+BEFORE marking any task done: verify EACH "Accept when" criterion with actual commands.
+Do not add features, abstractions, or code not required by the task.
 ```
 
 **Conflict prevention (Hero Mode):**
