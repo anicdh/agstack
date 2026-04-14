@@ -254,6 +254,22 @@ See `/plan-sprint` Step 6 for full details on each mode.
 > conflict detection, PR workflow, and communication protocol.
 > Solo mode skips all of this — the single dev + AI agents use Standard/Hero Mode above.
 
+**⛔ HARD RULES (Team Mode = team) — applies to ALL agents, ALL workflows:**
+
+1. **NEVER create PRs targeting `main`** — all PRs MUST target `sprint/sprint-XX`
+2. **NEVER push directly to `main`** — main is protected, only receives code via sprint PR after QA
+3. **BEFORE any git operation**, check if a sprint branch exists:
+   ```bash
+   git branch -a | grep sprint/
+   ```
+   - If sprint branch exists → use it as base and PR target
+   - If no sprint branch → STOP and ask the user which sprint branch to use
+4. **MUST read `.claude/agents/TEAM-RULES.md`** at session start — not optional
+5. **The ONLY way code reaches `main`**: sprint branch → QA passes → manual PR → all devs approve
+
+These rules apply regardless of whether `/plan-sprint` was run. If `Team Mode = team`,
+the sprint branch workflow is mandatory.
+
 ## Environment Variables
 - Frontend: `VITE_API_URL`, `VITE_APP_ENV`
 - API: `DATABASE_URL`, `REDIS_URL`, `JWT_SECRET`, `JWT_EXPIRES_IN`, `PORT`
