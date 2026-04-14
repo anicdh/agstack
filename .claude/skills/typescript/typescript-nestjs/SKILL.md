@@ -761,6 +761,161 @@ Before submitting code review:
 
 ---
 
+## Redis & Cache Module
+
+### ⛔ NEVER create Redis connections directly
+
+```typescript
+// ❌ WRONG — creates duplicate connections, no DI, untestable
+import Redis from 'ioredis';
+
+@Injectable()
+export class OrderService {
+  private redis = new Redis(process.env["REDIS_URL"]); // VIOLATION
+
+  async getOrder(id: string) {
+    const cached = await this.redis.get(`order:${id}`);
+    // ...
+  }
+}
+```
+
+### ✅ Use CacheModule + CacheService (DI)
+
+```typescript
+// common/cache/cache.module.ts — shared module, import once in AppModule
+import { Global, Module } from '@nestjs/common';
+import { CacheService } from './cache.service';
+
+@Global()
+@Module({
+  providers: [CacheService],
+  exports: [CacheService],
+})
+export class CacheModule {}
+```
+
+```typescript
+// common/cache/cache.service.ts — single Redis connection, injectable
+import { Injectable, OnModuleDestroy } from '@nestjs/common';
+import Redis from 'ioredis';
+
+@Injectable()
+export class CacheService implements OnModuleDestroy {
+  private readonly redis: Redis;
+
+  constructor() {
+    this.redis = new Redis(process.env["REDIS_URL"] ?? 'redis://localhost:6379');
+  }
+
+  async get<T>(key: string): Promise<T | null> {
+    const raw = await this.redis.get(key);
+    return raw ? (JSON.parse(raw) as T) : null;
+  }
+
+  async set(key: string, value: unknown, ttlSeconds?: number | undefined): Promise<void> {
+    const serialized = JSON.stringify(value);
+    if (ttlSeconds) {
+      await this.redis.setex(key, ttlSeconds, serialized);
+    } else {
+      await this.redis.set(key, serialized);
+    }
+  }
+
+  async del(key: string): Promise<void> {
+    await this.redis.del(key);
+  }
+
+  async onModuleDestroy(): Promise<void> {
+    await this.redis.quit();
+  }
+}
+```
+
+```typescript
+// ✅ CORRECT — inject CacheService, testable, single connection
+@Injectable()
+export class OrderService {
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly cache: CacheService,
+  ) {}
+
+  async getOrder(id: string) {
+    const cached = await this.cache.get<Order>(`order:${id}`);
+    if (cached) return cached;
+
+    const order = await this.prisma.order.findUniqueOrThrow({ where: { id } });
+    await this.cache.set(`order:${id}`, order, 300); // 5 min TTL
+    return order;
+  }
+}
+```
+
+### BullMQ for Job Queues
+
+```typescript
+// ❌ WRONG — manual Redis queue operations
+const redis = new Redis();
+await redis.lpush('jobs:email', JSON.stringify(payload));
+
+// ✅ CORRECT — use BullModule + @InjectQueue
+// In module:
+import { BullModule } from '@nestjs/bullmq';
+
+@Module({
+  imports: [
+    BullModule.registerQueue({ name: 'jobs:email' }),
+  ],
+})
+
+// In service:
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
+
+@Injectable()
+export class EmailService {
+  constructor(@InjectQueue('jobs:email') private readonly emailQueue: Queue) {}
+
+  async sendWelcome(userId: string) {
+    await this.emailQueue.add('welcome', { userId }, {
+      attempts: 3,
+      backoff: { type: 'exponential', delay: 2000 },
+    });
+  }
+}
+```
+
+### Cache Invalidation Pattern
+
+```typescript
+// After mutation, invalidate related cache
+async updateOrder(id: string, dto: UpdateOrderDto) {
+  const order = await this.prisma.order.update({
+    where: { id },
+    data: dto,
+  });
+
+  // Invalidate cache
+  await this.cache.del(`order:${id}`);
+  await this.cache.del(`orders:user:${order.userId}`);
+
+  return order;
+}
+```
+
+### Redis Decision Tree
+
+```
+Need Redis? →
+├── Job queue (async processing) → BullModule + @InjectQueue
+├── Cache (read-heavy data) → CacheModule + CacheService
+├── Session store → express-session + connect-redis (configured in main.ts)
+└── Pub/sub (real-time) → CacheService.getClient() or dedicated PubSubService
+```
+
+---
+
 ## Common Patterns Reference
 
 ### Reuse Code Map
@@ -776,3 +931,5 @@ Before submitting code review:
 | Logger | `Logger` injected | `@nestjs/common` | `console.log` |
 | Validation | class-validator decorators | DTOs | Manual validation |
 | Error filter | Global `HttpExceptionFilter` | Configured in app.module.ts | Per-route error handling |
+| Redis / Cache | `CacheService` injected | `@/common/cache/cache.service.ts` | `new Redis()` or `createClient()` |
+| Job queue | `@InjectQueue('jobs:type')` | `@nestjs/bullmq` + `BullModule` | Manual Redis LPUSH/BRPOP |

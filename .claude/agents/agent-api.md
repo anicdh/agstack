@@ -43,6 +43,11 @@ Specifically, MUST read these files before coding:
 - `common/filters/http-exception.filter.ts` — Error handling is already global.
 - `common/interceptors/transform.interceptor.ts` — Response wrapping is already global.
 - `common/interceptors/logging.interceptor.ts` — Logging is already global.
+- `common/cache/cache.service.ts` — Redis/Cache? INJECT `CacheService`. NEVER `new Redis()`.
+- `@nestjs/bullmq` — Job queue? USE `@InjectQueue()`. NEVER manual Redis LPUSH/BRPOP.
+
+**⛔ NEVER create direct Redis connections** (`new Redis()`, `createClient()`, `ioredis` manual).
+Always use `CacheService` (for cache) or `BullModule` (for jobs). See `typescript-nestjs` skill.
 
 **If logic will be used ≥ 2 modules** → create in `common/`, NEVER in module folder.
 

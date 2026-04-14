@@ -157,6 +157,8 @@ Frontend is React SPA, backend is NestJS REST API, heavy jobs processed by Rust 
 | Error handling | `common/filters/http-exception.filter.ts` → global filter | Try-catch per controller |
 | Request logging | `common/interceptors/logging.interceptor.ts` → global interceptor | console.log per route |
 | Response wrapping | `common/interceptors/transform.interceptor.ts` → auto-wrap | Manual wrap per endpoint |
+| Redis / Cache | `common/cache/cache.module.ts` → `CacheModule` + `CacheService` (inject via DI) | `new Redis()`, `createClient()`, or any direct Redis connection |
+| Job queue | `@nestjs/bullmq` → `@InjectQueue('jobs:type')` via `BullModule.registerQueue()` | Manual Redis LPUSH/BRPOP for job queuing |
 
 ### Rust Jobs — Shared Code Map
 
