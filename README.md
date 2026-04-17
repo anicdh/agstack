@@ -54,7 +54,7 @@ Claude does the rest — installs dependencies, starts Docker, runs migrations, 
 1. **Project identity** — name, description, generates package.json and config files
 2. **Infrastructure** — Docker Compose up, database ready, .env configured
 3. **App shell** — entry points, routing, providers, dev servers verified
-4. **Hand off** — clean Dummies reference, ready for product decisions
+4. **Hand off** — health check verified, ready for product decisions
 
 Then use `/office-hours` to start building your actual product — define your users, plan features, design your schema, and kick off your first sprint.
 
@@ -96,7 +96,7 @@ agStack is more than scaffolding. It teaches Claude how to be a senior developer
 CLAUDE.md              → Coding conventions, reuse map, quality rules
 docs/ux-guide.md       → UX principles tied to concrete UI decisions
 COMPONENTS.md          → Shadcn component catalog with decision map
-Dummies module         → Living reference implementation for all patterns
+Skills (typescript-nestjs, frontend-ui, etc.) → Teach agents patterns directly
 docs/decisions/*.md    → Architecture Decision Records (ADRs)
 ```
 
@@ -183,8 +183,6 @@ Pick Standard for most sprints (it now supports parallelism where tasks are inde
 
 | Command | Description |
 |---------|-------------|
-| `npm run scaffold:clean` | Remove Dummies reference code when starting your real project |
-| `npm run scaffold:generate` | Regenerate Dummies reference code if needed |
 | `bash scripts/sync-components.sh` | Auto-update COMPONENTS.md after installing new Shadcn components |
 
 ## Documentation

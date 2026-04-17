@@ -144,7 +144,7 @@ When creating a new skill, identify which category it belongs to:
 2. **Show ❌/✅ examples** — concrete wrong/right pairs are 10x more effective than abstract rules
 3. **Don't railroad Claude** — provide guidance, not exact code to copy. Claude adapts better with principles
 4. **Include "Before Commit Checklist"** — concrete checklist at the end, easy to verify
-5. **Link to real code** — reference Dummies module or existing code as examples
+5. **Link to real code** — reference existing modules or shared code as examples
 
 ## Anti-patterns
 

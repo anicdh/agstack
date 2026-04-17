@@ -17,14 +17,6 @@ export const queryKeys = {
     session: () => ["auth", "session"] as const,
   },
 
-  // ─── Reference feature (Dummies) ─────────────────────────────
-  // Run `npm run scaffold:clean` to remove. Use as pattern for new features.
-  dummies: {
-    all: ["dummies"] as const,
-    list: (params?: Record<string, unknown>) => ["dummies", "list", params] as const,
-    detail: (id: string) => ["dummies", "detail", id] as const,
-  },
-
   // Add new features following this pattern:
   // [feature]: {
   //   all: ["feature"] as const,

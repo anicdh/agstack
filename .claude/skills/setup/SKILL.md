@@ -25,6 +25,11 @@ The setup is split into two phases:
 Phase A should be fast — get to a working `npm run dev` ASAP.
 Phase B is where the real product decisions happen.
 
+**Before Phase A: check the stack profile.** If `.agstack/stack.json` does not
+exist, run `/tech-stack-consult` first. Without a profile, `/setup` assumes
+`nestjs-rust` (the full default) — which may be overkill for your project.
+See Step 0.5 below.
+
 **CRITICAL — DO NOT regenerate boilerplate code. COPY + REPLACE only.**
 
 The starter kit ships with EVERYTHING pre-built and tested, including pinned
@@ -38,16 +43,15 @@ The ONLY things /setup does:
 
 **Pre-built files that MUST NOT be regenerated (saves ~5000 tokens each run):**
 - API: main.ts, app.module.ts, prisma.service.ts, base-crud.service/controller,
-  dummies module (controller, service, DTOs, tests), interceptors, filters, DTOs
+  health module, interceptors, filters, DTOs
 - Frontend: main.tsx, providers.tsx, router.tsx, layout.tsx, home.tsx,
   api-client.ts, form-utils.ts, query-keys.ts, utils.ts, globals.css,
-  use-paginated-query.ts, use-api-mutation.ts, use-debounce.ts,
-  dummies feature (components, queries, types, tests), test utils
+  use-paginated-query.ts, use-api-mutation.ts, use-debounce.ts, test utils
 - Config: vite.config.ts, tailwind.config.ts, postcss.config.js, components.json,
   tsconfig.json (root, frontend, api, shared), vitest.config.ts,
   jest.config.ts, jest.e2e.config.ts, nest-cli.json,
   biome.json, lefthook.yml, docker-compose.yml, .env.example
-- Shared: types/dummy.ts, types/job-envelope.ts, constants/job-types.ts
+- Shared: types/job-envelope.ts, constants/job-types.ts
 
 If /setup rewrites ANY of these, it's wasting tokens and risking regressions.
 
@@ -116,6 +120,43 @@ If the install fails, suggest:
 > ```
 > Or check https://github.com/garrytan/gstack for instructions."
 
+### Step 0.5: Stack Profile
+
+Check whether the user has run `/tech-stack-consult`:
+
+```bash
+cat .agstack/stack.json 2>/dev/null || echo "NO_PROFILE"
+```
+
+**If `.agstack/stack.json` exists** — load the `profile` field and hold it in
+memory for the rest of setup. Tell the user:
+
+> "Using stack profile: `<profile>`. I'll scaffold based on your tech-stack-consult decision."
+
+Valid profiles:
+- `nestjs-rust` — full default, keep everything
+- `nestjs-only` — remove Rust worker, use BullMQ worker inside NestJS for jobs
+- `go-only` — frontend only; remove /api, /jobs, /shared. User writes Go backend.
+- `python-only` — frontend only; remove /api, /jobs, /shared. User writes Python backend.
+
+**If it doesn't exist** — surface the tradeoff:
+
+> "No stack profile found. /setup will default to `nestjs-rust` (NestJS + Rust
+> worker). Many projects don't need the Rust worker — it adds a second runtime,
+> second Dockerfile, and second CI pipeline.
+>
+> Options:
+> 1. Run `/tech-stack-consult` first (5 questions, ~2 min), then re-run `/setup`
+> 2. Proceed with `nestjs-rust` default
+>
+> Which do you want?"
+
+Wait for user response. If they pick (1), stop the skill and ask them to run
+`/tech-stack-consult`. If they pick (2), set `profile = "nestjs-rust"` in memory
+and continue.
+
+Record the active profile in the session — you'll apply it in Step 2.5.
+
 ### Step 1: Project Identity
 
 Ask the user:
@@ -181,8 +222,8 @@ Then:
 1. `docker-compose.yml` — ALREADY EXISTS. Reads `POSTGRES_DB` from `.env`.
    DO NOT regenerate. Only verify it's present.
 
-2. `api/prisma/schema.prisma` — ALREADY EXISTS with Dummy model.
-   DO NOT regenerate. NO User model yet — that's Phase B.
+2. `api/prisma/schema.prisma` — ALREADY EXISTS (empty, no models yet).
+   DO NOT regenerate. Domain models come from sprint tasks in Phase B.
 
    **Prisma 7+ compatibility (only if template pinning failed):** After `npm install`,
    check `npx prisma --version`. If somehow Prisma 7+ got installed:
@@ -225,16 +266,227 @@ If prisma migrate fails, check:
 4. Prisma 7 error "datasource property `url` is no longer supported"?
    → Follow the Prisma 7 compatibility steps above (remove url from schema, create prisma.config.ts)
 
+### Step 2.5: Apply Stack Profile
+
+Now apply the profile chosen in Step 0.5. This adjusts the scaffold BEFORE
+installing npm deps for frontend/api, so nothing that depends on the removed
+parts gets installed.
+
+**If profile == `nestjs-rust`** — no changes. Skip this step.
+
+**If profile == `nestjs-only`:**
+
+Tell the user:
+> "Applying `nestjs-only` profile: removing Rust worker, adding BullMQ worker inside NestJS."
+
+Then:
+
+1. Remove the Rust worker folder:
+   ```bash
+   rm -rf jobs/
+   ```
+
+2. Remove the Rust worker from `docker-compose.yml`. Edit the file and delete
+   the `jobs:` service block (if present). Keep `postgres:` and `redis:` as-is.
+
+3. Remove Rust-specific env vars from `.env.example` and `.env`:
+   - `RUST_LOG`
+   - `WORKER_CONCURRENCY`
+
+4. Update `CLAUDE.md`:
+   - In the `## Tech Stack` section, delete the `### Job Worker (/jobs)` subsection
+   - In `## Project Structure`, delete the `- /jobs` bullet
+   - In `## Job Queue Conventions`, replace the line
+     `NestJS enqueue → Redis (BullMQ) → Rust worker dequeue & process`
+     with
+     `NestJS enqueue → Redis (BullMQ) → BullMQ worker (in /api/src/workers) dequeue & process`
+
+5. Scaffold a BullMQ worker stub inside the NestJS app. Create
+   `api/src/workers/example.processor.ts`:
+
+   ```ts
+   import { Processor, WorkerHost } from '@nestjs/bullmq';
+   import { Logger } from '@nestjs/common';
+   import type { Job } from 'bullmq';
+
+   @Processor('jobs:example')
+   export class ExampleProcessor extends WorkerHost {
+     private readonly logger = new Logger(ExampleProcessor.name);
+
+     async process(job: Job): Promise<void> {
+       this.logger.log(`Processing job ${job.id} of type ${job.name}`);
+       // TODO: implement job handler
+     }
+   }
+   ```
+
+   Then register it in the appropriate module (or create a `WorkersModule`
+   and import it into `AppModule`). The user can follow the `typescript-nestjs`
+   skill's BullMQ section to add real processors.
+
+6. Remove the Rust-related ADR reference from `CLAUDE.md` (ADR 002 is now
+   superseded — `docs/decisions/000-tech-stack.md` captures the new decision).
+   Delete the line:
+   ```
+   - Rust for jobs: CPU-intensive tasks ... → ADR: docs/decisions/002-rust-for-jobs.md
+   ```
+   Leave `docs/decisions/002-rust-for-jobs.md` on disk (keep the history).
+
+**If profile == `go-only` OR `python-only`:**
+
+The team is not writing a NestJS backend. agStack ships the React frontend;
+you own the backend in Go or Python.
+
+Let `LANG` = "Go" if profile == `go-only`, otherwise "Python".
+Let `WORKDIR` = `backend-go` if profile == `go-only`, otherwise `backend-python`.
+
+Tell the user:
+> "Applying `<profile>` profile: keeping /frontend only. Removing /api (NestJS),
+> /jobs (Rust), and /shared (TS types) — you'll write your backend in <LANG>.
+> I'll leave a README in `<WORKDIR>/` with the suggested layout."
+
+Then:
+
+1. Remove TS-backend folders:
+   ```bash
+   rm -rf api/ jobs/ shared/
+   ```
+
+2. Remove TS-backend references from `docker-compose.yml`:
+   - Delete the `jobs:` service (if present)
+   - Keep `postgres:` and `redis:` — user's backend will use them
+   - Do NOT add a service for the user's backend — they run it outside Docker
+     until they decide how to package it.
+
+3. Remove TS-backend env vars from `.env.example` and `.env`:
+   - `JWT_SECRET`, `JWT_EXPIRES_IN` (NestJS-specific)
+   - `RUST_LOG`, `WORKER_CONCURRENCY`
+   - KEEP `DATABASE_URL` and `REDIS_URL` — user's backend needs these
+
+4. Create `<WORKDIR>/README.md` with a suggested layout. Use exactly this template:
+
+   For `go-only` (`backend-go/README.md`):
+   ```markdown
+   # Backend (Go)
+
+   agStack provides the React frontend. You own this Go backend.
+
+   ## Suggested layout
+   - `cmd/api/main.go` — HTTP server entry point
+   - `internal/handlers/` — HTTP handlers
+   - `internal/models/` — domain types
+   - `internal/db/` — Postgres access (pgx or sqlx)
+   - `internal/queue/` — Redis queue consumer (optional)
+
+   ## Suggested libraries
+   - Router: chi, gin, or net/http
+   - DB: pgx or sqlx
+   - Queue: asynq (Redis-backed job queue — matches frontend expectations)
+
+   ## Frontend integration
+   The frontend expects `VITE_API_URL` (see `frontend/.env`) to point at this
+   service. Default: `http://localhost:3000/api/v1`.
+
+   ## Docker
+   `docker-compose.yml` in the repo root provides Postgres + Redis. Run:
+   ```
+   docker-compose up -d
+   ```
+   Then start your Go service separately on port 3000 (or change `VITE_API_URL`).
+   ```
+
+   For `python-only` (`backend-python/README.md`):
+   ```markdown
+   # Backend (Python)
+
+   agStack provides the React frontend. You own this Python backend.
+
+   ## Suggested layout
+   - `app/main.py` — FastAPI/Django entry point
+   - `app/routers/` or `app/views/` — HTTP routes
+   - `app/models/` — Pydantic / Django models
+   - `app/db/` — Postgres access (SQLAlchemy / Django ORM)
+   - `app/workers/` — Celery / RQ / Dramatiq tasks (optional)
+
+   ## Suggested stacks
+   - FastAPI + SQLAlchemy + Celery
+   - Django + Django REST + RQ
+
+   ## Frontend integration
+   The frontend expects `VITE_API_URL` (see `frontend/.env`) to point at this
+   service. Default: `http://localhost:3000/api/v1`.
+
+   ## Docker
+   `docker-compose.yml` in the repo root provides Postgres + Redis. Run:
+   ```
+   docker-compose up -d
+   ```
+   Then start your Python service separately on port 3000 (or change `VITE_API_URL`).
+   ```
+
+5. Update `frontend/.env` (or `.env.example` for frontend) so `VITE_API_URL`
+   is clearly a placeholder — prepend a comment:
+   ```
+   # Your <LANG> backend URL. agStack does not scaffold this backend.
+   VITE_API_URL=http://localhost:3000/api/v1
+   ```
+
+6. Update `CLAUDE.md` — major surgery since the TS backend is gone:
+   - Delete the `### Backend API (/api)` subsection from `## Tech Stack`
+   - Delete the `### Job Worker (/jobs)` subsection from `## Tech Stack`
+   - In `## Project Structure`:
+     - Delete `- /api`, `- /jobs`, `- /shared` bullets
+     - Add `- /<WORKDIR> — YOUR <LANG> backend (not scaffolded by agStack)`
+   - Delete the `### Backend NestJS` section from `## Coding Conventions`
+   - Delete the `### Backend NestJS — Shared Code Map` table
+   - Delete the `### Rust Jobs — Shared Code Map` table
+   - Delete the `### Rust Jobs (/jobs)` section
+   - Delete the `## API Conventions` section (user defines their own)
+   - Delete the `## Job Queue Conventions` section
+   - In `## Multi-Agent Rules` → `Spawn order`: note that `agent-api` and
+     `agent-jobs` do not apply here
+   - In `## Key Decisions`: delete references to ADR 002 (Rust) and leave a note
+     pointing to `docs/decisions/000-tech-stack.md`
+   - Leave `.claude/agents/agent-api.md` and `agent-jobs.md` on disk (inert)
+     but add a line at the top of CLAUDE.md's agents section:
+     ```
+     > Note: agent-api and agent-jobs are disabled for this project (non-TS backend).
+     ```
+
+7. Scaffold step — after removing everything, the repo still needs to be
+   runnable for frontend-only development. Run the frontend npm install
+   ONLY (skip api/jobs steps below in later /setup sections):
+
+   ```bash
+   cd frontend && npm install
+   ```
+
+   Then install backend dependencies for the user's stack:
+   - `go-only`: `cd backend-go && go mod tidy` (generates go.sum)
+   - `python-only`: `cd backend-python && pip install -e ".[dev]"`
+
+   Do NOT run `npx prisma migrate` or any NestJS-related steps — they no
+   longer apply. Skip Step 2's Prisma section entirely if profile is
+   `go-only` or `python-only`.
+
+Flag for the user:
+> "Your backend is OUT OF SCOPE for agStack skills — /review, /qa, /ship
+> assume a NestJS API. Those skills will still work for the frontend, but
+> any backend QA/review is on you."
+
+After applying the profile, run `git status` and show the user what changed
+before continuing to Step 3.
+
 ### Step 3: App Shell + Shadcn Components
 
 **EVERYTHING below is pre-existing in the boilerplate. DO NOT regenerate ANY of these files:**
 
 Backend (all pre-built):
 - `api/src/main.ts` — NestJS bootstrap with Swagger, CORS, global pipes/filters
-- `api/src/app.module.ts` — Root module importing DummiesModule
+- `api/src/app.module.ts` — Root module importing HealthModule
 - `api/src/common/prisma.service.ts` — NestJS-managed PrismaClient
 - `api/nest-cli.json` — NestJS CLI config
-- All common infrastructure, dummies module, DTOs, filters, interceptors
+- All common infrastructure, health module, DTOs, filters, interceptors
 
 Frontend (all pre-built):
 - `frontend/index.html` — Vite entry HTML (has `__PROJECT_NAME__` in title)
@@ -314,7 +566,7 @@ But here's the expected flow for reference:
 
 Then sprint by sprint:
 ```
-code feature           → Follow Dummies reference pattern
+code feature           → Follow patterns in skills (typescript-nestjs, frontend-ui)
 /review                → Code review
 /qa                    → Test
 /ship                  → Ship to staging/production
@@ -332,7 +584,7 @@ These are decisions that `/office-hours` and sprint planning will resolve:
 | App layout (sidebar/nav) | Admin panel = sidebar. Landing = top nav. Dashboard = both | `/design-consultation` decides |
 | Roles & permissions | Some MVPs have none. SaaS = admin/user. Marketplace = buyer/seller | `/office-hours` decides |
 | Deploy target | Depends on budget, scale, team | `/setup-deploy` handles when ready |
-| Background jobs (Rust) | Not every MVP needs jobs | Sprint task if needed |
+| Background jobs runner | Driven by stack profile (see `.agstack/stack.json`) | `/tech-stack-consult` decides |
 
 ---
 
@@ -362,4 +614,4 @@ Use gStack skills throughout the process:
 6. If user says "skip" for any step, skip it and move to next.
 7. Phase A should be FAST — max 4 steps to a running dev server.
 8. DO NOT make product decisions (auth, schema, layout) — that's Phase B via `/office-hours`.
-9. DO NOT generate features beyond the Dummies reference — real features come from sprint plan.
+9. DO NOT generate business features — real features come from sprint plan. Skills teach the patterns.

@@ -41,11 +41,9 @@
 ## Database Schema
 
 ### Core Tables
-- `dummies` — id, name, email, status, category, description, secret_note, created_at, updated_at (REFERENCE — run `npm run scaffold:clean` to remove)
 - [Add your domain tables here]
 
 ### Indexes
-- `dummies.email` — UNIQUE (REFERENCE — remove with scaffold:clean)
 - [Add your indexes here]
 
 ## Security

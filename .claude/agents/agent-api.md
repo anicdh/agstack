@@ -10,6 +10,11 @@ required_skills:
 
 # Agent: api
 
+> **Active only when `.agstack/stack.json` profile == `nestjs-rust` or `nestjs-only`.**
+> If profile is `go-only`, use `agent-api-go` instead.
+> If profile is `python-only`, use `agent-api-python` instead.
+> Check `.agstack/stack.json` at session start to confirm which agent applies.
+
 ## Role
 Backend API — NestJS modules, database, auth, business logic
 

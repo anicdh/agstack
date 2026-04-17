@@ -191,24 +191,6 @@ Frontend is React SPA, backend is NestJS REST API, heavy jobs processed by Rust 
 - NestJS enqueue → Redis (BullMQ) → Rust worker dequeue & process
 - Dead letter queue: `jobs:dead` for failed jobs after max retries
 
-## Reference Feature (Dummies)
-
-> The Dummies module is a **reference implementation** demonstrating all patterns end-to-end.
-> Run `npm run scaffold:clean` to remove all Dummies code when starting a real project.
-> Before implementing a new feature, READ the Dummies module to learn the code style.
-
-| Layer | Reference file |
-|-------|---------------|
-| Shared types | `shared/types/dummy.ts` |
-| API DTO | `api/src/modules/dummies/dto/create-dummy.dto.ts` |
-| API Service | `api/src/modules/dummies/dummies.service.ts` |
-| API Controller | `api/src/modules/dummies/dummies.controller.ts` |
-| API Test | `api/src/modules/dummies/__tests__/dummies.service.spec.ts` |
-| FE Types | `frontend/src/features/dummies/types/index.ts` |
-| FE Queries | `frontend/src/features/dummies/queries/use-dummies.ts` |
-| FE Component | `frontend/src/features/dummies/components/dummy-list.tsx` |
-| FE Test | `frontend/src/features/dummies/components/dummy-list.test.tsx` |
-
 ## Multi-Agent Rules
 
 ### READ before starting
@@ -235,7 +217,22 @@ Choose a mode when starting a sprint via `/plan-sprint`:
 
 See `/plan-sprint` Step 6 for full details on each mode.
 
+### Agent routing by stack profile
+
+Check `.agstack/stack.json` at session start. The profile determines which agents are active:
+
+| Profile | Backend agent | Jobs agent | Frontend agent |
+|---------|--------------|------------|----------------|
+| `nestjs-rust` | `agent-api` | `agent-jobs` | `agent-frontend` |
+| `nestjs-only` | `agent-api` (also handles BullMQ jobs) | INACTIVE | `agent-frontend` |
+| `go-only` | `agent-api-go` | INACTIVE | `agent-frontend` |
+| `python-only` | `agent-api-python` | INACTIVE | `agent-frontend` |
+
+If no `.agstack/stack.json` exists, default to `nestjs-rust` (all agents active).
+
 ### Ownership boundaries (enforced in both modes)
+
+**NestJS profiles (`nestjs-rust`, `nestjs-only`):**
 | Resource | Owner | Others |
 |----------|-------|--------|
 | `/shared/types/*` | agent-api | READ only |
@@ -245,10 +242,26 @@ See `/plan-sprint` Step 6 for full details on each mode.
 | `/api/src/modules/*` | agent-api | agent-frontend never touches |
 | `.claude/agents/[name].md` | that agent only | Never modify another agent's file |
 
+**Go profile (`go-only`):**
+| Resource | Owner | Others |
+|----------|-------|--------|
+| `/backend-go/internal/*` | agent-api-go | READ only |
+| `/frontend/src/components/ui/*` | Shadcn-managed | Wrap in `/components/shared/` |
+| `/frontend/src/features/*` | agent-frontend | agent-api-go never touches |
+| `.claude/agents/[name].md` | that agent only | Never modify another agent's file |
+
+**Python profile (`python-only`):**
+| Resource | Owner | Others |
+|----------|-------|--------|
+| `/backend-python/app/*` | agent-api-python | READ only |
+| `/frontend/src/components/ui/*` | Shadcn-managed | Wrap in `/components/shared/` |
+| `/frontend/src/features/*` | agent-frontend | agent-api-python never touches |
+| `.claude/agents/[name].md` | that agent only | Never modify another agent's file |
+
 ### Spawn order (both modes)
-1. agent-api FIRST — owns shared types and database schema
+1. Backend agent FIRST (agent-api / agent-api-go / agent-api-python) — owns API and database
 2. agent-frontend SECOND — consumes API types and endpoints
-3. agent-jobs ONLY if sprint has job-related tasks
+3. agent-jobs ONLY if profile == `nestjs-rust` AND sprint has job-related tasks
 
 ### Team Mode Rules (only when Team Mode = team)
 
@@ -283,6 +296,8 @@ the sprint branch workflow is mandatory.
   → ADR: docs/decisions/001-nestjs-over-express.md
 - Rust for jobs: CPU-intensive tasks (image processing, report gen) need performance
   → ADR: docs/decisions/002-rust-for-jobs.md
+  → Per-project override: `/tech-stack-consult` can swap Rust for a BullMQ worker in NestJS
+    (see `docs/decisions/000-tech-stack.md` if present)
 - Zustand over Redux: simpler API, less boilerplate, sufficient for this app scale
   → ADR: docs/decisions/003-zustand-over-redux.md
 - Redis for both queue + cache: reduce infrastructure complexity
@@ -292,8 +307,16 @@ the sprint branch workflow is mandatory.
 
 ## Dev Setup
 
-Run `/setup` in Claude Code — it copies templates, replaces project name, installs deps,
-starts Docker, runs migrations, and gets dev servers running. Then `/office-hours` for product planning.
+Run `/tech-stack-consult` FIRST — 5 quick questions that decide whether this
+project needs `nestjs-rust` (full default), `nestjs-only` (BullMQ worker inside
+NestJS), or a different stack entirely. Output is saved to `.agstack/stack.json`.
+
+Then run `/setup` — it reads `.agstack/stack.json`, copies templates, replaces
+project name, applies the stack profile (removes `/jobs` if not needed), installs
+deps, starts Docker, runs migrations, and gets dev servers running. Then
+`/office-hours` for product planning.
+
+If you skip `/tech-stack-consult`, `/setup` will warn you and default to `nestjs-rust`.
 
 **Manual setup:**
 ```bash

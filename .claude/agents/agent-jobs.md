@@ -9,6 +9,11 @@ required_skills:
 
 # Agent: jobs
 
+> **Active only when `.agstack/stack.json` profile == `nestjs-rust`.**
+> If profile is `nestjs-only`, jobs run inside NestJS via BullMQ (handled by `agent-api`).
+> If profile is `go-only` or `python-only`, this agent is INACTIVE — user owns their own worker.
+> Check `.agstack/stack.json` at session start to confirm.
+
 ## Role
 Rust job worker — heavy async processing tasks
 

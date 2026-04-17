@@ -45,8 +45,8 @@ export abstract class BaseCrudService<
 > {
   protected readonly logger: Logger;
 
-  // Internal typed reference for dynamic model delegate access
-  // PrismaService extends PrismaClient which has model accessors (e.g. prisma.dummy)
+  // Internal typed reference for dynamic model delegate access.
+  // PrismaService extends PrismaClient which has model accessors (e.g. prisma.user)
   // but no index signature, so we cast once here for bracket-notation access.
   private readonly _prismaClient: PrismaClientLike;
 

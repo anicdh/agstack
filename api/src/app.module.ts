@@ -6,14 +6,12 @@
  *
  * PATTERN: Import feature modules, NOT individual controllers/services.
  * Each feature module handles its own wiring.
- *
- * When running `npm run scaffold:clean`, DummiesModule import will be removed.
  */
 
 import { Module } from "@nestjs/common";
-import { DummiesModule } from "./modules/dummies/dummies.module";
+import { HealthModule } from "./modules/health/health.module";
 
 @Module({
-  imports: [DummiesModule],
+  imports: [HealthModule],
 })
 export class AppModule {}
