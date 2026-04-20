@@ -124,7 +124,7 @@ Frontend is React SPA, backend handles REST API and async jobs per stack profile
 - DO NOT leave TODO/FIXME in code merged to main — create task in backlog
 - DO NOT commit commented-out code — delete or use feature flag
 - Shared types: `/shared/types/` — Zod schemas + inferred types
-- Job type constants: `/shared/constants/job-types.ts` → mirror `jobs/src/jobs/mod.rs`
+- Job type constants: `/shared/constants/job-types.ts` → mirror in your worker profile (see file comments)
 
 ## Reuse Map — MUST read before writing new code
 
@@ -176,8 +176,8 @@ Frontend is React SPA, backend handles REST API and async jobs per stack profile
 
 | Need | Already exists at | Who updates? |
 |----------|-------------|-----------|
-| Job type constants | `/shared/constants/job-types.ts` | API agent, mirrored by Jobs agent |
-| Job envelope type | `/shared/types/job-envelope.ts` | API agent |
+| Job type constants | `/shared/constants/job-types.ts` | API agent, mirrored by worker per profile |
+| Job envelope type | `/shared/types/job-envelope.ts` | API agent, mirrored by worker per profile |
 | API response types | `/shared/types/` | API agent, consumed by FE agent |
 
 ## API Conventions
