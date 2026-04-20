@@ -12,10 +12,12 @@ Types:
 - chore: Maintenance
 
 ## Before Commit
-- Run `cargo fmt`
-- Run `cargo clippy`
-- Run `cargo test`
 - Review diff
+- NestJS profiles: `cd frontend && npx tsc --noEmit` + `cd api && npx tsc --noEmit`
+- nestjs-rust profile only: `cargo fmt` + `cargo clippy` + `cargo test`
+- go-only profile: `go vet ./...` + `go test ./...`
+- python-only profile: `ruff check .` + `pytest`
+- All profiles: `npx @biomejs/biome check --write .`
 
 ## GitNexus Integration (If Available)
 

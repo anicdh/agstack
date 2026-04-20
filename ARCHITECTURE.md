@@ -1,10 +1,15 @@
 # Architecture
 
+> **This diagram shows the `nestjs-rust` profile (default).** For other profiles:
+> - `nestjs-only`: replace "Rust Worker" with "BullMQ Processor (inside /api)"
+> - `go-only`: replace "NestJS REST API" with "Go Backend"; job worker is user-owned
+> - `python-only`: replace "NestJS REST API" with "Python Backend"; job worker is user-owned
+
 ## System Diagram
 
 ```
 ┌──────────────┐     ┌──────────────┐     ┌──────────────┐
-│   Frontend   │────▶│   NestJS     │────▶│  PostgreSQL   │
+│   Frontend   │────▶│   Backend    │────▶│  PostgreSQL   │
 │  React SPA   │     │   REST API   │     │              │
 │  :5173       │     │   :3000      │     │  :5432       │
 └──────────────┘     └──────┬───────┘     └──────────────┘
@@ -12,8 +17,8 @@
                             │ enqueue              │ read/write
                             ▼                     │
                      ┌──────────────┐     ┌───────┴──────┐
-                     │    Redis     │────▶│  Rust Worker  │
-                     │  Queue+Cache │     │  Job Process  │
+                     │    Redis     │────▶│  Job Worker   │
+                     │  Queue+Cache │     │  (see note)   │
                      │  :6379       │     │              │
                      └──────────────┘     └──────────────┘
 ```
@@ -27,10 +32,10 @@
 4. Response → TransformInterceptor → JSON → React Query cache
 
 ### Job Flow (Asynchronous)
-1. NestJS Service → BullMQ Producer → Redis queue
-2. Rust Worker (tokio) → Redis consumer → dequeue job
-3. Rust processes job → direct Postgres write (sqlx)
-4. Job result → Redis pub/sub → NestJS listener (optional)
+1. Backend service → BullMQ/Redis producer → Redis queue
+2. Job worker dequeues job (Rust worker for nestjs-rust, BullMQ processor for nestjs-only, user-owned for go/python)
+3. Worker processes job → Postgres write
+4. Job result → Redis pub/sub → backend listener (optional)
 5. Frontend polls or WebSocket receives result
 
 ### Caching Flow
@@ -58,7 +63,7 @@
 ## Scalability Notes
 - Frontend: CDN-ready static build
 - API: stateless, horizontal scale behind load balancer
-- Rust Worker: scale instances independently, Redis-based coordination
+- Job Worker: scale instances independently, Redis-based coordination (nestjs-rust: Rust binary; nestjs-only: NestJS process; go/python: user-owned)
 - Database: connection pooling via PgBouncer in production
 - Redis: Sentinel or Cluster mode for HA
 

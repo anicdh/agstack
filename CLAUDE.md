@@ -25,11 +25,10 @@ Frontend is React SPA, backend handles REST API and async jobs per stack profile
 - Swagger/OpenAPI auto-generated at `/api/docs`
 - Class-validator + class-transformer for DTO validation
 
-### Job Worker (`/jobs`)
-- Rust (edition 2021)
-- Tokio async runtime
-- Redis consumer (reads jobs from BullMQ queue)
-- sqlx for Postgres direct access
+### Job Worker
+- **nestjs-rust profile**: Rust (edition 2021) in `/jobs` — Tokio async, sqlx for Postgres, Redis consumer
+- **nestjs-only profile**: BullMQ processors inside NestJS (`/api/src/workers/`)
+- **go-only / python-only**: User-owned — your backend handles async jobs
 - Processes: [list job types — email, image processing, reports, etc.]
 
 ### Database
@@ -42,9 +41,12 @@ Frontend is React SPA, backend handles REST API and async jobs per stack profile
 
 ## Project Structure
 - `/frontend` — React SPA (Vite dev server port 5173)
-- `/api` — NestJS REST API (port 3000)
-- `/jobs` — Rust job worker (connects to Redis)
-- `/shared` — Shared TypeScript types & Zod schemas
+- `/api` — NestJS REST API (port 3000) — NestJS profiles only
+- `/jobs` — Rust job worker (connects to Redis) — nestjs-rust only
+- `/backend-go` — Go backend — go-only profile only
+- `/backend-python` — Python backend — python-only profile only
+- `/shared` — Shared TypeScript types & Zod schemas — NestJS profiles only
+- `/templates` — Starter templates for Go, Python, BullMQ worker
 - `/infra` — Dockerfiles, scripts, k8s manifests
 - `/docs` — PRD, API docs, deployment guide, ADRs
 - `/agile` — Backlog, sprints, velocity tracking
