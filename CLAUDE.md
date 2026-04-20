@@ -295,8 +295,8 @@ the sprint branch workflow is mandatory.
 - See `.env.example` for full list — `/setup` adjusts this based on your stack profile
 
 ## Key Decisions
-- NestJS over Express: need module system, DI, and decorator-based validation
-  → ADR: docs/decisions/001-nestjs-over-express.md
+- Backend framework is profile-based: NestJS (default), Chi (Go), FastAPI (Python)
+  → ADR: docs/decisions/001-backend-framework-strategy.md
 - Job worker strategy is profile-based: BullMQ (default), Rust, asynq, or Celery
   → ADR: docs/decisions/002-job-worker-strategy.md
   → Profile chosen during `/tech-stack-consult`
