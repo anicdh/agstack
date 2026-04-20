@@ -98,7 +98,7 @@ if the team doesn't write TypeScript backends, NestJS is a non-starter.
 IF Q3 == "Go"
     → profile = "go-only"
     → jobRunner = "user-owned"
-    → reason: "Team writes Go backends. agStack provides React frontend only; user writes Go API + worker."
+    → reason: "Team writes Go backends. agStack provides React frontend only; user writes Go API + worker (Chi + pgx + asynq suggested)."
 
 ELIF Q3 == "Python"
     → profile = "python-only"

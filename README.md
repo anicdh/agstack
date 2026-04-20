@@ -27,8 +27,8 @@ Run `/tech-stack-consult` to pick the right profile for your project (5 question
 |---------|----------|---------|------|----------|
 | `nestjs-only` (default) | React 18 + Vite + Tailwind + Shadcn/ui | NestJS + Prisma | BullMQ (in NestJS) | Most projects — simplest deploy |
 | `nestjs-rust` | Same | NestJS + Prisma | Rust + Tokio | CPU-heavy jobs, team knows Rust |
-| `go-only` | Same | Go (Chi + pgx) | Your choice | Team prefers Go |
-| `python-only` | Same | Python (FastAPI + SQLAlchemy) | Your choice | Team prefers Python |
+| `go-only` | Same | Go (Chi + pgx) | asynq (Redis) | Team prefers Go |
+| `python-only` | Same | Python (FastAPI + SQLAlchemy) | Celery (Redis) | Team prefers Python |
 
 All profiles share: PostgreSQL 16, Redis 7, Biome (lint/format), Lefthook (git hooks), strict TypeScript for frontend.
 
