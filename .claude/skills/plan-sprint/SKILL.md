@@ -204,7 +204,29 @@ If RETRO.md exists from a previous run → read and apply its lessons regardless
 - New tasks from new epics or scope changes get new sequential IDs
 - Ask user: "Any scope changes or new priorities since last sprint?"
 
-### Step 5: Verify design prerequisites
+### Step 5: Verify design prerequisites (HARD GATE — cannot skip)
+
+**⚠️ This gate applies to ALL epics, not just those classified as user-oriented.**
+Misclassification is a real risk — an epic labeled "technical" may actually have UI.
+This step catches that.
+
+**5a. Keyword scan — catch misclassified epics:**
+
+For EVERY epic entering this sprint (including "technical" ones), scan the epic's
+scope, task descriptions, and any referenced PRD sections for these keywords:
+```
+page, screen, form, table, list, dashboard, button, dialog, modal, toast,
+component, layout, responsive, mobile, UI, UX, frontend, fullstack,
+end-to-end, CRUD, user-facing, notification email, report PDF
+```
+
+- If ANY keyword is found in a "technical" epic → **STOP**. Tell the user:
+  > "EPIC-XX is classified as `technical` but its scope contains '[keyword]',
+  > which suggests UI work. Either reclassify it as `user-oriented` and run
+  > product-design agent, or confirm it's truly backend-only."
+- Only proceed when user explicitly confirms classification is correct.
+
+**5b. Design approval check — for all user-oriented epics:**
 
 For each user-oriented epic with tasks in this sprint:
 
@@ -216,13 +238,22 @@ For each user-oriented epic with tasks in this sprint:
    - If NOT ✅ → **STOP**. Tell the user:
      > "EPIC-XX is user-oriented but design is not approved yet. Run product-design agent first."
 
-2. For technical epics → no design needed, proceed directly
+2. For technical epics (confirmed by keyword scan) → no design needed, proceed directly
 
-3. Reference the UI spec's acceptance criteria in each task's "Accept when (AI implementation)" section — copy the specific criteria from `docs/ui-specs/[epic-name].md`
+3. **Check calculations file** — if the UI spec contains numbers (pricing, metrics, limits, chart values):
+   - Verify `docs/ui-specs/[epic-name]-calculations.md` exists
+   - If it exists → confirm it's marked as verified by user (look for `✅ Verified by user` at top)
+   - If it does NOT exist but the spec has numbers → **STOP**. Tell the user:
+     > "EPIC-XX design has numerical data but no calculations file. Run product-design agent to create `docs/ui-specs/[epic-name]-calculations.md` so you can verify the numbers."
+   - If it exists but NOT verified → **STOP**. Tell the user:
+     > "EPIC-XX has a calculations file but you haven't verified it yet. Please review `docs/ui-specs/[epic-name]-calculations.md` and add `✅ Verified by user` at the top."
+
+4. Reference the UI spec's acceptance criteria in each task's "Accept when (AI implementation)" section — copy the specific criteria from `docs/ui-specs/[epic-name].md`
 
 **Why this matters:**
 - Agent-frontend has interactive mockups + concrete specs to follow → fewer UX mistakes
 - Human refinement at sprint end compares implementation against design → objective review
+- Calculations file ensures no hallucinated numbers slip into production — user verifies the math
 - Future sprints reuse and extend the same spec → consistency across iterations
 
 ### Step 5.5: Wave Calculation (Standard Mode only)

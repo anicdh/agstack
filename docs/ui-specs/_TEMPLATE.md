@@ -69,6 +69,15 @@
 - Tablet (≥640px): [what changes — hidden columns, stacked cards, etc.]
 - Mobile (<640px): [what changes — full stack, hamburger menu, etc.]
 
+## Calculations
+
+> If this spec contains ANY numbers (pricing, metrics, limits, chart values, estimates),
+> a separate calculations file MUST exist: `docs/ui-specs/[epic-name]-calculations.md`
+> The user MUST verify that file and mark it `✅ Verified by user` before sprint planning.
+> If there are no numbers in this spec, write "N/A — no quantitative data in this design."
+
+[N/A — no quantitative data in this design. | See `[epic-name]-calculations.md`]
+
 ## Revision History
 | Sprint | Task | Change |
 |--------|------|--------|

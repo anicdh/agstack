@@ -64,11 +64,25 @@ For each major capability or feature area, create an Epic:
 | `user-oriented` | Features where users interact with UI. Has screens, flows, interactions. | **YES** — must go through product-design agent before implementation | Login flow, Dashboard, Order management, Settings page |
 | `technical` | System internals, infrastructure, optimization. No direct user interaction. | **NO** — can go straight to /plan-sprint | Database migration, Redis caching, Job queue setup, API rate limiting, CI/CD pipeline |
 
-**Classification rules:**
-- If an epic has ANY user-facing screen → `user-oriented` (even if it also has backend work)
-- If an epic is purely backend/infra with no UI → `technical`
-- When in doubt → `user-oriented` (better to over-design than under-design)
+**Classification rules — DEFAULT IS user-oriented:**
+- **ALL epics are `user-oriented` by default.** An epic is `technical` ONLY if it meets ALL of these:
+  1. Zero screens, pages, or UI components
+  2. Zero user-visible output (no emails, notifications, reports, dashboards)
+  3. Purely backend/infra: DB migrations, CI/CD, caching layer, job queue internals, monitoring
+- If an epic says "fullstack", "end-to-end", "feature", or "flow" → it is `user-oriented`. Period.
 - API endpoints that serve a UI feature belong to the UI epic, not a separate technical epic
+- When in doubt → `user-oriented` (better to over-design than under-design)
+- **DO NOT classify based on task title alone** — read the scope description carefully
+
+**⚠️ Common misclassification traps:**
+| Epic description | WRONG | CORRECT | Why |
+|-----------------|-------|---------|-----|
+| "Fullstack auth" | technical | **user-oriented** | "fullstack" = has UI |
+| "User management" | technical | **user-oriented** | "user" implies screens |
+| "Add CRUD for orders" | technical | **user-oriented** | CRUD = forms, tables, pages |
+| "Integrate Stripe payments" | technical | **user-oriented** | users see payment UI |
+| "Set up Redis caching" | user-oriented | **technical** | no UI, pure infra |
+| "Add database indexes" | user-oriented | **technical** | no UI, pure optimization |
 
 ### Step 4: Define Epic Priority & Dependencies
 

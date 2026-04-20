@@ -38,6 +38,7 @@
 - [ ] Epic had design approved by product-design agent BEFORE sprint planning
 - [ ] Implementation matches design mockup in `frontend/src/mockups/[epic-name]/`
 - [ ] UI spec acceptance criteria in `docs/ui-specs/[epic-name].md` all checked off
+- [ ] If design has numbers: `docs/ui-specs/[epic-name]-calculations.md` exists and marked `✅ Verified by user`
 
 ## Human Refinement (marks transition from 🟢 → ✅)
 - [ ] Human compared implementation against design mockup in browser

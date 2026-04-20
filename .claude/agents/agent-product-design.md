@@ -96,6 +96,42 @@ Start dev server and use `/browse` to open `http://localhost:5173/mockups/[epic-
 4. Check spacing, alignment, color consistency
 5. Screenshot key pages for reference
 
+### Step 4.5: Calculations audit (if design contains numbers)
+
+If the design includes ANY quantitative data — pricing, capacity estimates, conversion rates,
+performance targets, table row counts, pagination limits, chart values, or formulas — you MUST
+create a calculations file so the user can verify every number before approving the design.
+
+**Create:** `docs/ui-specs/[epic-name]-calculations.md`
+
+```markdown
+# Calculations: [Epic Name]
+
+> Every number in the design MUST trace back to a source or formula here.
+> User verifies these BEFORE approving the design.
+
+## [Number/Metric 1] — e.g., "Dashboard shows 99.9% uptime"
+- **Where it appears:** [page/component in the mockup]
+- **Value:** 99.9%
+- **Source:** [SLA document / API endpoint / business rule / assumption]
+- **Formula:** [if calculated: show the math step-by-step]
+- **Can user override?** [yes/no — is this configurable or hardcoded?]
+
+## [Number/Metric 2] — e.g., "Pagination: 20 items per page"
+- **Where it appears:** [orders list page]
+- **Value:** 20
+- **Source:** UX best practice — balances load time vs scrolling
+- **Formula:** N/A (fixed)
+- **Can user override?** Yes — page size selector [10, 20, 50]
+```
+
+**Rules:**
+- Every number visible in the mockup must appear in this file
+- If a number comes from an assumption (not a data source), label it clearly: `⚠️ Assumption`
+- If a number requires an API call at runtime, note which endpoint
+- Mock data values in `mock-data.ts` must also be listed (so user knows they're fake)
+- If there are NO numbers in the design, skip this step entirely — don't create an empty file
+
 ### Step 5: Define acceptance criteria
 
 Based on the design, write specific acceptance criteria for each task that will implement this epic.
@@ -129,9 +165,14 @@ Show the mockup to the user:
 > "Here's the design for EPIC-XX: [Name]. Open `localhost:5173/mockups/[epic-name]` to interact with it.
 > Let me know what to change — we'll iterate until you're happy."
 
+If a calculations file was created (Step 4.5), explicitly ask the user to verify it:
+> "This design includes numerical data. Please review `docs/ui-specs/[epic-name]-calculations.md`
+> to verify all numbers, sources, and formulas. Add `✅ Verified by user` at the top when done."
+
 Iterate based on feedback. When the user approves:
 1. Mark the epic's Design status as ✅ in BACKLOG.md
-2. The epic is now ready for `/plan-sprint`
+2. Confirm calculations file is verified (if applicable)
+3. The epic is now ready for `/plan-sprint`
 
 ## After design is approved
 
@@ -155,6 +196,7 @@ rm -rf frontend/src/mockups/[epic-name]
 - Mockups MUST show all states (loading, empty, error, success)
 - Mockups MUST be responsive (test at 640px)
 - UI specs MUST have specific, testable acceptance criteria
+- If design has numbers: calculations file MUST exist and be verified by user before sprint
 
 ## Current State
 - **Working on**: [Epic ID + description]
