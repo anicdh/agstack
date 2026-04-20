@@ -11,7 +11,7 @@ You get a **senior-level AI teammate from day one**. Not a blank project with a 
 
 ## Why agStack?
 
-**Production-ready stack** — React frontend with your choice of backend: NestJS + Rust workers (default), NestJS-only with BullMQ, Go, or Python. All profiles share PostgreSQL + Redis and are architected to scale so you never have to rip things apart when your MVP gets traction. Every tech choice is documented with a decision record explaining *why*, not just *what*.
+**Production-ready stack** — React frontend with your choice of backend: NestJS with BullMQ (default), NestJS + Rust workers, Go, or Python. All profiles share PostgreSQL + Redis and are architected to scale so you never have to rip things apart when your MVP gets traction. Every tech choice is documented with a decision record explaining *why*, not just *what*.
 
 **Real product development workflow** — from first idea through deploy. Guided onboarding gets you running in minutes. Then structured product thinking (inspired by YC and Agile) takes you from problem definition to shipped features, with built-in review gates at every stage.
 
@@ -25,8 +25,8 @@ Run `/tech-stack-consult` to pick the right profile for your project (5 question
 
 | Profile | Frontend | Backend | Jobs | Best for |
 |---------|----------|---------|------|----------|
-| `nestjs-rust` (default) | React 18 + Vite + Tailwind + Shadcn/ui | NestJS + Prisma | Rust + Tokio | CPU-heavy jobs, team knows Rust |
-| `nestjs-only` | Same | NestJS + Prisma | BullMQ (in NestJS) | Most projects — no Rust needed |
+| `nestjs-only` (default) | React 18 + Vite + Tailwind + Shadcn/ui | NestJS + Prisma | BullMQ (in NestJS) | Most projects — simplest deploy |
+| `nestjs-rust` | Same | NestJS + Prisma | Rust + Tokio | CPU-heavy jobs, team knows Rust |
 | `go-only` | Same | Go (Chi + pgx) | Your choice | Team prefers Go |
 | `python-only` | Same | Python (FastAPI + SQLAlchemy) | Your choice | Team prefers Python |
 
@@ -89,14 +89,14 @@ docker compose ps                   # both should show "running"
 
 # 4. Run services (depends on your profile)
 
-# nestjs-rust (default):
+# nestjs-only (default):
+cd api && npm install && npx prisma migrate dev --name init && npm run start:dev    # terminal 1
+cd frontend && npm install && npm run dev                                           # terminal 2
+
+# nestjs-rust (adds Rust worker):
 cd api && npm install && npx prisma migrate dev --name init && npm run start:dev    # terminal 1
 cd frontend && npm install && npm run dev                                           # terminal 2
 cd jobs && cargo build && cargo run                                                 # terminal 3
-
-# nestjs-only (no Rust):
-cd api && npm install && npx prisma migrate dev --name init && npm run start:dev    # terminal 1
-cd frontend && npm install && npm run dev                                           # terminal 2
 
 # go-only:
 cd backend-go && go run ./cmd/api                                                  # terminal 1

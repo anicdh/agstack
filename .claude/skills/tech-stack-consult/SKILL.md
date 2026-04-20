@@ -3,17 +3,18 @@ name: tech-stack-consult
 description: >
   Use BEFORE /setup to decide the backend stack for a new project.
   Asks about workload, team skills, and deploy constraints, then recommends
-  one of four profiles: nestjs-rust (default), nestjs-only (BullMQ in NestJS),
-  go-only (React + user's Go backend), or python-only (React + user's Python backend).
+  one of four profiles: nestjs-only (default, BullMQ in NestJS), nestjs-rust
+  (adds Rust worker), go-only (React + user's Go backend), or python-only
+  (React + user's Python backend).
   Writes the decision to `.agstack/stack.json` so /setup can scaffold correctly.
 invocation: manual
 ---
 
 # /tech-stack-consult — Backend Stack Decision
 
-> Pick the right backend stack BEFORE scaffolding. Running the full
-> `NestJS + Rust` default on a project that doesn't need it makes deploys
-> harder (2 runtimes, 2 Dockerfiles, 2 CI pipelines) for zero benefit.
+> Pick the right backend stack BEFORE scaffolding. The default is `nestjs-only`
+> (NestJS + BullMQ). Use this skill to evaluate whether you need `nestjs-rust`
+> (adds a Rust worker), `go-only`, or `python-only` instead.
 
 ## When to use
 
@@ -22,7 +23,7 @@ Run `/tech-stack-consult` **before** `/setup` when:
 - You're not sure whether you need the Rust job worker
 - You're evaluating whether agStack fits your project at all
 
-If you skip this skill, `/setup` assumes the default profile: `nestjs-rust`.
+If you skip this skill, `/setup` assumes the default profile: `nestjs-only`.
 
 ## Output
 
@@ -120,8 +121,9 @@ ELIF Q1 == "Occasional, low volume" AND Q3 == "TypeScript + Rust"
     → reason: "Low job volume — BullMQ handles this fine. Rust expertise is available but not needed yet; easy to upgrade later."
 
 ELIF Q1 == "Yes, regularly" AND Q3 == "TypeScript + Rust"
-    → profile = "nestjs-rust" (default agStack)
+    → profile = "nestjs-rust"
     → jobRunner = "rust-worker"
+    → reason: "Heavy jobs + Rust expertise available. Rust worker gives best performance for CPU-intensive work."
 
 ELIF Q1 == "Yes, regularly" AND Q3 == "TypeScript"
     → profile = "nestjs-only"
@@ -135,8 +137,9 @@ ELIF Q1 == "No" AND Q2 != "Low"
     → reason: "No heavy jobs. Higher traffic is handled by NestJS scaling, not a separate Rust worker."
 
 ELSE
-    → profile = "nestjs-rust"
-    → reason: "Fallback — high traffic + heavy jobs + TS+Rust team. Full agStack default."
+    → profile = "nestjs-only"
+    → jobRunner = "bullmq-in-nestjs"
+    → reason: "Fallback — no exact match. Start with NestJS + BullMQ (simplest full-stack). Upgrade to nestjs-rust later if profiling shows need."
 ```
 
 Edge cases:
@@ -159,14 +162,15 @@ Why this profile:
 - <one line per Q answer that drove the decision>
 
 What /setup will do:
-- nestjs-rust:
-    * Keep /api, /frontend, /jobs (Rust) as is
-    * Default agStack scaffold
-- nestjs-only:
+- nestjs-only (default):
     * Keep /api (NestJS) and /frontend (React)
     * Replace /jobs (Rust) with a light BullMQ worker file inside /api
     * Remove Rust from docker-compose.yml and CI
-    * Simpler deploy: 1 Node service + Postgres + Redis
+    * Simplest deploy: 1 Node service + Postgres + Redis
+- nestjs-rust:
+    * Keep /api, /frontend, /jobs (Rust) as is
+    * 2 runtimes (Node + Rust), 2 Dockerfiles, 2 CI pipelines
+    * Best for CPU-heavy jobs when team knows Rust
 - go-only:
     * Keep /frontend (React) only
     * Delete /api, /jobs, /shared (TS-only) — you'll write your own Go backend
@@ -220,8 +224,9 @@ Use this exact template — fill in the brackets:
 Accepted
 
 ## Context
-agStack ships with NestJS + Rust by default. For this project we evaluated
-whether that default fits, based on workload, team skills, and deploy constraints.
+agStack defaults to NestJS + BullMQ (`nestjs-only`). For this project we evaluated
+whether that default fits or a different profile is better, based on workload,
+team skills, and deploy constraints.
 
 ## Decision
 **Profile: `<profile>`** — job runner: `<jobRunner>`
@@ -263,7 +268,7 @@ Tell the user:
 
 1. Ask ONE question at a time via AskUserQuestion. Never dump all 5 at once.
 2. Decision rules are deterministic — don't invent new profiles. If the matrix
-   doesn't cover a case, default to `nestjs-only` and explain why.
+   doesn't cover a case, keep the default `nestjs-only` and explain why.
 3. Do NOT benchmark, research libraries, or read other codebases during this
    skill. The whole point is a fast default; deep research happens in
    `/plan-eng-review` later if needed.

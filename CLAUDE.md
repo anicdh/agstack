@@ -230,7 +230,7 @@ Check `.agstack/stack.json` at session start. The profile determines which agent
 | `go-only` | `agent-api-go` | INACTIVE | `agent-frontend` |
 | `python-only` | `agent-api-python` | INACTIVE | `agent-frontend` |
 
-If no `.agstack/stack.json` exists, default to `nestjs-rust` (all agents active).
+If no `.agstack/stack.json` exists, default to `nestjs-only` (agent-api + agent-frontend active, agent-jobs INACTIVE).
 
 ### Ownership boundaries (enforced in both modes)
 
@@ -310,15 +310,16 @@ the sprint branch workflow is mandatory.
 ## Dev Setup
 
 Run `/tech-stack-consult` FIRST — 5 quick questions that decide whether this
-project needs `nestjs-rust` (full default), `nestjs-only` (BullMQ worker inside
-NestJS), or a different stack entirely. Output is saved to `.agstack/stack.json`.
+project needs `nestjs-only` (default — BullMQ worker inside NestJS), `nestjs-rust`
+(adds Rust worker for CPU-heavy jobs), or a different stack entirely. Output is
+saved to `.agstack/stack.json`.
 
 Then run `/setup` — it reads `.agstack/stack.json`, copies templates, replaces
 project name, applies the stack profile (removes `/jobs` if not needed), installs
 deps, starts Docker, runs migrations, and gets dev servers running. Then
 `/office-hours` for product planning.
 
-If you skip `/tech-stack-consult`, `/setup` will warn you and default to `nestjs-rust`.
+If you skip `/tech-stack-consult`, `/setup` will warn you and default to `nestjs-only`.
 
 **Manual setup:**
 ```bash
@@ -327,7 +328,7 @@ docker-compose up -d         # postgres + redis
 npm install                  # install all workspaces
 cd api && ln -sf ../.env .env && npx prisma migrate dev && npm run start:dev
 cd frontend && npm run dev
-cd jobs && cargo build && cargo run
+cd jobs && cargo build && cargo run   # nestjs-rust profile only
 ```
 
 ## gstack

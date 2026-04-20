@@ -1,9 +1,10 @@
 # Architecture
 
-> **This diagram shows the `nestjs-rust` profile (default).** For other profiles:
-> - `nestjs-only`: replace "Rust Worker" with "BullMQ Processor (inside /api)"
-> - `go-only`: replace "NestJS REST API" with "Go Backend"; job worker is user-owned
-> - `python-only`: replace "NestJS REST API" with "Python Backend"; job worker is user-owned
+> **This diagram shows the general architecture.** The default profile is `nestjs-only`. For other profiles:
+> - `nestjs-only` (default): Job Worker = BullMQ Processor inside `/api`
+> - `nestjs-rust`: Job Worker = separate Rust binary in `/jobs`
+> - `go-only`: replace "Backend REST API" with "Go Backend"; job worker is user-owned
+> - `python-only`: replace "Backend REST API" with "Python Backend"; job worker is user-owned
 
 ## System Diagram
 

@@ -27,8 +27,7 @@ Phase B is where the real product decisions happen.
 
 **Before Phase A: check the stack profile.** If `.agstack/stack.json` does not
 exist, run `/tech-stack-consult` first. Without a profile, `/setup` assumes
-`nestjs-rust` (the full default) — which may be overkill for your project.
-See Step 0.5 below.
+`nestjs-only` (NestJS + BullMQ, no Rust). See Step 0.5 below.
 
 **CRITICAL — DO NOT regenerate boilerplate code. COPY + REPLACE only.**
 
@@ -134,25 +133,25 @@ memory for the rest of setup. Tell the user:
 > "Using stack profile: `<profile>`. I'll scaffold based on your tech-stack-consult decision."
 
 Valid profiles:
-- `nestjs-rust` — full default, keep everything
-- `nestjs-only` — remove Rust worker, use BullMQ worker inside NestJS for jobs
+- `nestjs-only` — default, NestJS + BullMQ worker inside NestJS for jobs
+- `nestjs-rust` — NestJS + separate Rust worker for CPU-heavy jobs
 - `go-only` — frontend only; remove /api, /jobs, /shared. User writes Go backend.
 - `python-only` — frontend only; remove /api, /jobs, /shared. User writes Python backend.
 
 **If it doesn't exist** — surface the tradeoff:
 
-> "No stack profile found. /setup will default to `nestjs-rust` (NestJS + Rust
-> worker). Many projects don't need the Rust worker — it adds a second runtime,
-> second Dockerfile, and second CI pipeline.
+> "No stack profile found. /setup will default to `nestjs-only` (NestJS + BullMQ
+> worker — no Rust). This is the simplest full-stack option: 1 Node runtime,
+> 1 Dockerfile, 1 CI pipeline.
 >
 > Options:
-> 1. Run `/tech-stack-consult` first (5 questions, ~2 min), then re-run `/setup`
-> 2. Proceed with `nestjs-rust` default
+> 1. Run `/tech-stack-consult` first (5 questions, ~2 min) to evaluate all profiles, then re-run `/setup`
+> 2. Proceed with `nestjs-only` default
 >
 > Which do you want?"
 
 Wait for user response. If they pick (1), stop the skill and ask them to run
-`/tech-stack-consult`. If they pick (2), set `profile = "nestjs-rust"` in memory
+`/tech-stack-consult`. If they pick (2), set `profile = "nestjs-only"` in memory
 and continue.
 
 Record the active profile in the session — you'll apply it in Step 2.5.
@@ -272,16 +271,14 @@ Now apply the profile chosen in Step 0.5. This adjusts the scaffold BEFORE
 installing npm deps for frontend/api, so nothing that depends on the removed
 parts gets installed.
 
-**If profile == `nestjs-rust`** — no changes. Skip this step.
-
-**If profile == `nestjs-only`:**
+**If profile == `nestjs-only`** — this is the default. Remove the Rust worker:
 
 Tell the user:
-> "Applying `nestjs-only` profile: removing Rust worker, adding BullMQ worker inside NestJS."
+> "Applying `nestjs-only` profile (default): removing Rust worker folder, keeping BullMQ worker inside NestJS."
 
 Then:
 
-1. Remove the Rust worker folder:
+1. Remove the Rust worker folder (if present):
    ```bash
    rm -rf jobs/
    ```
