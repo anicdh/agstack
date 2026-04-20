@@ -47,7 +47,7 @@ docker-compose up -d
 # NestJS profiles (nestjs-rust / nestjs-only):
 cd frontend && npm install && npm run dev
 cd api && npm install && npx prisma migrate dev && npm run start:dev
-cd jobs && cargo build && cargo run   # nestjs-rust only
+cp -r templates/jobs-rust jobs && cd jobs && cargo build && cargo run   # nestjs-rust only
 
 # Go profile (go-only):
 cd frontend && npm install && npm run dev

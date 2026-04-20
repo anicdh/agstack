@@ -271,63 +271,51 @@ Now apply the profile chosen in Step 0.5. This adjusts the scaffold BEFORE
 installing npm deps for frontend/api, so nothing that depends on the removed
 parts gets installed.
 
-**If profile == `nestjs-only`** — this is the default. Remove the Rust worker:
+**If profile == `nestjs-only`** — this is the default. No `/jobs` folder exists
+in the repo, so there's nothing to remove. Just set up the BullMQ worker:
 
 Tell the user:
-> "Applying `nestjs-only` profile (default): removing Rust worker folder, keeping BullMQ worker inside NestJS."
+> "Applying `nestjs-only` profile (default): setting up BullMQ worker inside NestJS."
 
 Then:
 
-1. Remove the Rust worker folder (if present):
+1. Copy the BullMQ worker template into the NestJS app:
    ```bash
-   rm -rf jobs/
+   cp -r templates/worker-bullmq/src/workers api/src/workers
    ```
 
-2. Remove the Rust worker from `docker-compose.yml`. Edit the file and delete
-   the `jobs:` service block (if present). Keep `postgres:` and `redis:` as-is.
+   Then register `WorkersModule` in `AppModule`. The user can follow the
+   `typescript-nestjs` skill's BullMQ section to add real processors.
 
-3. Remove Rust-specific env vars from `.env.example` and `.env`:
+2. Remove Rust-specific env vars from `.env.example` and `.env` (if present):
    - `RUST_LOG`
    - `WORKER_CONCURRENCY`
 
-4. Update `CLAUDE.md`:
-   - In the `## Tech Stack` section, delete the `### Job Worker (/jobs)` subsection
-   - In `## Project Structure`, delete the `- /jobs` bullet
-   - In `## Job Queue Conventions`, replace the line
-     `NestJS enqueue → Redis (BullMQ) → Rust worker dequeue & process`
-     with
-     `NestJS enqueue → Redis (BullMQ) → BullMQ worker (in /api/src/workers) dequeue & process`
+3. Update `CLAUDE.md` Project Structure: remove the `- /jobs` line if present.
 
-5. Scaffold a BullMQ worker stub inside the NestJS app. Create
-   `api/src/workers/example.processor.ts`:
+**If profile == `nestjs-rust`:**
 
-   ```ts
-   import { Processor, WorkerHost } from '@nestjs/bullmq';
-   import { Logger } from '@nestjs/common';
-   import type { Job } from 'bullmq';
+Tell the user:
+> "Applying `nestjs-rust` profile: copying Rust worker from templates."
 
-   @Processor('jobs:example')
-   export class ExampleProcessor extends WorkerHost {
-     private readonly logger = new Logger(ExampleProcessor.name);
+Then:
 
-     async process(job: Job): Promise<void> {
-       this.logger.log(`Processing job ${job.id} of type ${job.name}`);
-       // TODO: implement job handler
-     }
-   }
+1. Copy the Rust worker template to project root:
+   ```bash
+   cp -r templates/jobs-rust jobs
    ```
 
-   Then register it in the appropriate module (or create a `WorkersModule`
-   and import it into `AppModule`). The user can follow the `typescript-nestjs`
-   skill's BullMQ section to add real processors.
+2. Add Rust-specific env vars to `.env` and `.env.example` (if not already present):
+   - `RUST_LOG=info`
+   - `WORKER_CONCURRENCY=4`
 
-6. Remove the Rust-related ADR reference from `CLAUDE.md` (ADR 002 is now
-   superseded — `docs/decisions/000-tech-stack.md` captures the new decision).
-   Delete the line:
+3. Add a `jobs:` service to `docker-compose.yml` if not already present
+   (build from `jobs/`, depends on redis + postgres).
+
+4. Verify Rust toolchain is installed:
+   ```bash
+   rustc --version || echo "Rust not installed — run: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh"
    ```
-   - Rust for jobs: CPU-intensive tasks ... → ADR: docs/decisions/002-rust-for-jobs.md
-   ```
-   Leave `docs/decisions/002-rust-for-jobs.md` on disk (keep the history).
 
 **If profile == `go-only` OR `python-only`:**
 

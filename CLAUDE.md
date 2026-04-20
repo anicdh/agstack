@@ -26,7 +26,7 @@ Frontend is React SPA, backend handles REST API and async jobs per stack profile
 - Class-validator + class-transformer for DTO validation
 
 ### Job Worker
-- **nestjs-rust profile**: Rust (edition 2021) in `/jobs` — Tokio async, sqlx for Postgres, Redis consumer
+- **nestjs-rust profile**: Rust (edition 2021) in `/jobs` (copied from `/templates/jobs-rust` by `/setup`) — Tokio async, sqlx for Postgres, Redis consumer
 - **nestjs-only profile**: BullMQ processors inside NestJS (`/api/src/workers/`)
 - **go-only / python-only**: User-owned — your backend handles async jobs
 - Processes: [list job types — email, image processing, reports, etc.]
@@ -42,7 +42,7 @@ Frontend is React SPA, backend handles REST API and async jobs per stack profile
 ## Project Structure
 - `/frontend` — React SPA (Vite dev server port 5173)
 - `/api` — NestJS REST API (port 3000) — NestJS profiles only
-- `/jobs` — Rust job worker (connects to Redis) — nestjs-rust only
+- `/jobs` — Rust job worker (created by `/setup` from `/templates/jobs-rust`) — nestjs-rust only
 - `/backend-go` — Go backend — go-only profile only
 - `/backend-python` — Python backend — python-only profile only
 - `/shared` — Shared TypeScript types & Zod schemas — NestJS profiles only
@@ -59,7 +59,7 @@ Frontend is React SPA, backend handles REST API and async jobs per stack profile
 - TypeScript: **Maximum strict** — see `tsconfig.json`, NEVER use `any` or `as` cast unless there is a comment explaining
 - `exactOptionalPropertyTypes: true` — optional class properties MUST include `| undefined` (e.g., `meta?: PageMeta | undefined`, NOT `meta?: PageMeta`)
 - `noPropertyAccessFromIndexSignature: true` — use bracket notation for index signatures (e.g., `process.env["PORT"]`, NOT `process.env.PORT`)
-- Rust: **Clippy pedantic** + **rustfmt** (config: `jobs/.clippy.toml`, `jobs/rustfmt.toml`)
+- Rust (nestjs-rust only): **Clippy pedantic** + **rustfmt** (config: `jobs/.clippy.toml`, `jobs/rustfmt.toml`)
 - **Dependency pinning: EXACT versions only** — NO `^` or `~` prefix
   - `npm install` adds `^` by default — ALWAYS use `npm install --save-exact` (or `npm i -E`)
   - When adding a new dependency: `npm i -E <package>@<version>`
@@ -315,7 +315,7 @@ project needs `nestjs-only` (default — BullMQ worker inside NestJS), `nestjs-r
 saved to `.agstack/stack.json`.
 
 Then run `/setup` — it reads `.agstack/stack.json`, copies templates, replaces
-project name, applies the stack profile (removes `/jobs` if not needed), installs
+project name, applies the stack profile (copies `/jobs` from templates for nestjs-rust), installs
 deps, starts Docker, runs migrations, and gets dev servers running. Then
 `/office-hours` for product planning.
 
@@ -328,7 +328,7 @@ docker-compose up -d         # postgres + redis
 npm install                  # install all workspaces
 cd api && ln -sf ../.env .env && npx prisma migrate dev && npm run start:dev
 cd frontend && npm run dev
-cd jobs && cargo build && cargo run   # nestjs-rust profile only
+cp -r templates/jobs-rust jobs && cd jobs && cargo build && cargo run   # nestjs-rust profile only
 ```
 
 ## gstack

@@ -24,7 +24,7 @@ Rust job worker — heavy async processing tasks
 4. If GitNexus available (`npx gitnexus status`): use it for impact analysis before modifying symbols
 
 ## Assigned Areas
-- `/jobs/src/*`
+- `/jobs/src/*` (created by `/setup` from `/templates/jobs-rust`)
 - `/infra/docker/jobs.Dockerfile`
 
 ## Git Workflow

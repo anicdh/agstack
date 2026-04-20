@@ -59,7 +59,7 @@ Claude does the rest — installs dependencies, starts Docker, runs migrations, 
 0.5. **Stack profile** — reads `.agstack/stack.json` (from `/tech-stack-consult`) to determine which backend to scaffold
 1. **Project identity** — name, description, generates package.json and config files
 2. **Infrastructure** — Docker Compose up, database ready, .env configured
-2.5. **Apply profile** — removes unused stacks (e.g., `/jobs` for nestjs-only, `/api` + `/jobs` for go-only/python-only)
+2.5. **Apply profile** — copies stack-specific templates (e.g., `/jobs` for nestjs-rust, removes `/api` for go-only/python-only)
 3. **App shell** — entry points, routing, providers, dev servers verified
 4. **Hand off** — health check verified, ready for product decisions
 
@@ -94,6 +94,7 @@ cd api && npm install && npx prisma migrate dev --name init && npm run start:dev
 cd frontend && npm install && npm run dev                                           # terminal 2
 
 # nestjs-rust (adds Rust worker):
+cp -r templates/jobs-rust jobs                                                      # copy Rust worker
 cd api && npm install && npx prisma migrate dev --name init && npm run start:dev    # terminal 1
 cd frontend && npm install && npm run dev                                           # terminal 2
 cd jobs && cargo build && cargo run                                                 # terminal 3
@@ -128,7 +129,7 @@ When Claude builds a new feature, it reads these files first — so it uses the 
 ```
 ├── frontend/          React SPA (Vite dev server :5173)
 ├── api/               NestJS REST API (:3000) — nestjs-rust / nestjs-only profiles
-├── jobs/              Rust async job worker — nestjs-rust profile only
+├── jobs/              Rust async job worker — created by /setup for nestjs-rust only
 ├── shared/            Shared TypeScript types & Zod schemas — NestJS profiles only
 ├── templates/         Starter templates for Go, Python, BullMQ worker
 ├── materials/         Your existing research, prototypes, reference code (local only, gitignored)
@@ -139,7 +140,7 @@ When Claude builds a new feature, it reads these files first — so it uses the 
 └── infra/             Dockerfiles, deploy scripts
 ```
 
-For `go-only` profile, `/setup` removes `/api`, `/jobs`, `/shared` and creates `backend-go/` from the Go template. For `python-only`, it creates `backend-python/` instead. You own the backend — agStack provides the React frontend and the product workflow.
+For `nestjs-rust` profile, `/setup` copies `/templates/jobs-rust` → `/jobs` to add the Rust worker. For `go-only`, it removes `/api`, `/shared` and creates `backend-go/` from the Go template. For `python-only`, it creates `backend-python/` instead. You own the backend — agStack provides the React frontend and the product workflow.
 
 ## Why gStack + Agile?
 

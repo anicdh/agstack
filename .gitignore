@@ -9,7 +9,7 @@ build/
 .next/
 out/
 
-# Rust (nestjs-rust profile)
+# Rust (nestjs-rust profile — /jobs is created by /setup from /templates/jobs-rust)
 jobs/target/
 
 # Go (go-only profile)
