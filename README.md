@@ -11,7 +11,7 @@ You get a **senior-level AI teammate from day one**. Not a blank project with a 
 
 ## Why agStack?
 
-**Production-ready stack** — React + NestJS + Rust workers + PostgreSQL + Redis — architected to scale so you never have to rip things apart when your MVP gets traction. Every tech choice is documented with a decision record explaining *why*, not just *what*.
+**Production-ready stack** — React frontend with your choice of backend: NestJS + Rust workers (default), NestJS-only with BullMQ, Go, or Python. All profiles share PostgreSQL + Redis and are architected to scale so you never have to rip things apart when your MVP gets traction. Every tech choice is documented with a decision record explaining *why*, not just *what*.
 
 **Real product development workflow** — from first idea through deploy. Guided onboarding gets you running in minutes. Then structured product thinking (inspired by YC and Agile) takes you from problem definition to shipped features, with built-in review gates at every stage.
 
@@ -21,14 +21,16 @@ You get a **senior-level AI teammate from day one**. Not a blank project with a 
 
 ## Tech Stack
 
-| Layer    | Tech                                               |
-|----------|----------------------------------------------------|
-| Frontend | React 18 + Vite + Tailwind + Shadcn/ui + Zustand + React Query |
-| API      | NestJS + TypeScript + Prisma ORM                   |
-| Jobs     | Rust + Tokio + sqlx (for CPU-intensive tasks)      |
-| Database | PostgreSQL 16 + Redis 7                            |
-| Queue    | BullMQ (Redis)                                     |
-| Quality  | Biome (lint/format) + Lefthook (git hooks) + strict TypeScript + Clippy |
+Run `/tech-stack-consult` to pick the right profile for your project (5 questions, ~2 min).
+
+| Profile | Frontend | Backend | Jobs | Best for |
+|---------|----------|---------|------|----------|
+| `nestjs-rust` (default) | React 18 + Vite + Tailwind + Shadcn/ui | NestJS + Prisma | Rust + Tokio | CPU-heavy jobs, team knows Rust |
+| `nestjs-only` | Same | NestJS + Prisma | BullMQ (in NestJS) | Most projects — no Rust needed |
+| `go-only` | Same | Go (Chi + pgx) | Your choice | Team prefers Go |
+| `python-only` | Same | Python (FastAPI + SQLAlchemy) | Your choice | Team prefers Python |
+
+All profiles share: PostgreSQL 16, Redis 7, Biome (lint/format), Lefthook (git hooks), strict TypeScript for frontend.
 
 ## Quick Start
 
@@ -36,7 +38,10 @@ You get a **senior-level AI teammate from day one**. Not a blank project with a 
 
 - [Claude Code](https://docs.anthropic.com/en/docs/claude-code) with Claude MAX subscription
 - [Docker](https://docs.docker.com/get-docker/) and Docker Compose
-- Node.js 20+ and Rust toolchain (`rustup`)
+- Node.js 20+
+- Rust toolchain (`rustup`) — only if using `nestjs-rust` profile
+- Go 1.22+ — only if using `go-only` profile
+- Python 3.12+ — only if using `python-only` profile
 
 ### Setup
 
@@ -51,8 +56,10 @@ Claude does the rest — installs dependencies, starts Docker, runs migrations, 
 `/setup` walks you through the full onboarding:
 
 0. **Verify + install gStack** — security scan the repo, install gStack product workflow skills
+0.5. **Stack profile** — reads `.agstack/stack.json` (from `/tech-stack-consult`) to determine which backend to scaffold
 1. **Project identity** — name, description, generates package.json and config files
 2. **Infrastructure** — Docker Compose up, database ready, .env configured
+2.5. **Apply profile** — removes unused stacks (e.g., `/jobs` for nestjs-only, `/api` + `/jobs` for go-only/python-only)
 3. **App shell** — entry points, routing, providers, dev servers verified
 4. **Hand off** — health check verified, ready for product decisions
 
@@ -80,10 +87,24 @@ docker-compose up -d
 # 3. Verify database is ready (wait a few seconds for postgres to start)
 docker compose ps                   # both should show "running"
 
-# 4. Run services
+# 4. Run services (depends on your profile)
+
+# nestjs-rust (default):
 cd api && npm install && npx prisma migrate dev --name init && npm run start:dev    # terminal 1
 cd frontend && npm install && npm run dev                                           # terminal 2
 cd jobs && cargo build && cargo run                                                 # terminal 3
+
+# nestjs-only (no Rust):
+cd api && npm install && npx prisma migrate dev --name init && npm run start:dev    # terminal 1
+cd frontend && npm install && npm run dev                                           # terminal 2
+
+# go-only:
+cd backend-go && go run ./cmd/api                                                  # terminal 1
+cd frontend && npm install && npm run dev                                           # terminal 2
+
+# python-only:
+cd backend-python && pip install -e . && uvicorn app.main:app --reload             # terminal 1
+cd frontend && npm install && npm run dev                                           # terminal 2
 ```
 
 > **Troubleshooting:** If `prisma migrate` fails with "User was denied access", your local port 5432 may already be in use by another postgres instance. Either stop it (`brew services stop postgresql`) or change the port in `.env` and `docker-compose.yml`.
@@ -106,9 +127,10 @@ When Claude builds a new feature, it reads these files first — so it uses the 
 
 ```
 ├── frontend/          React SPA (Vite dev server :5173)
-├── api/               NestJS REST API (:3000)
-├── jobs/              Rust async job worker
-├── shared/            Shared TypeScript types & Zod schemas
+├── api/               NestJS REST API (:3000) — nestjs-rust / nestjs-only profiles
+├── jobs/              Rust async job worker — nestjs-rust profile only
+├── shared/            Shared TypeScript types & Zod schemas — NestJS profiles only
+├── templates/         Starter templates for Go, Python, BullMQ worker
 ├── materials/         Your existing research, prototypes, reference code (local only, gitignored)
 ├── agile/             Backlog, sprints, velocity tracking
 ├── docs/              PRD, UX guide, API docs, ADRs
@@ -116,6 +138,8 @@ When Claude builds a new feature, it reads these files first — so it uses the 
 ├── .claude/           Claude Code config, skills, agents
 └── infra/             Dockerfiles, deploy scripts
 ```
+
+For `go-only` profile, `/setup` removes `/api`, `/jobs`, `/shared` and creates `backend-go/` from the Go template. For `python-only`, it creates `backend-python/` instead. You own the backend — agStack provides the React frontend and the product workflow.
 
 ## Why gStack + Agile?
 
