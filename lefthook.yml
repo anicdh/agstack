@@ -27,6 +27,7 @@ pre-commit:
       skip:
         - merge
         - rebase
+        - run: "[ ! -d api ]"
 
     rust-fmt:
       root: "jobs/"
@@ -35,6 +36,7 @@ pre-commit:
       skip:
         - merge
         - rebase
+        - run: "[ ! -d jobs ]"
 
     rust-clippy:
       root: "jobs/"
@@ -43,6 +45,7 @@ pre-commit:
       skip:
         - merge
         - rebase
+        - run: "[ ! -d jobs ]"
 
 pre-push:
   parallel: true
@@ -60,6 +63,7 @@ pre-push:
       skip:
         - merge
         - rebase
+        - run: "[ ! -d api ]"
 
     rust-build:
       root: "jobs/"
@@ -67,6 +71,7 @@ pre-push:
       skip:
         - merge
         - rebase
+        - run: "[ ! -d jobs ]"
 
 commit-msg:
   commands:

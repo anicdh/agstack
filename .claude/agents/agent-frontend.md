@@ -101,7 +101,7 @@ Specifically, MUST read these files before coding:
 - Fetch in useEffect → React Query `useQuery`
 
 ## Branch Strategy
-- **Standard Mode**: 1 branch per task `feat/TASK-XXX-[description]`. You go AFTER agent-api — shared types and API are already merged to main.
+- **Standard Mode**: 1 branch per task `feat/TASK-XXX-[description]`. For NestJS profiles (`nestjs-rust`, `nestjs-only`): you go AFTER agent-api — shared types and API are already merged to main. For Go/Python profiles (`go-only`, `python-only`): work independently since backend is user-owned (no agent-api to wait for).
 - **Hero Mode**: shared branch `sprint/sprint-XX`. If shared types from agent-api are not committed yet, use a temporary local interface and replace when they appear on the branch.
 
 ## Current State

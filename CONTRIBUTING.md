@@ -6,7 +6,7 @@ Thanks for your interest in contributing! This guide will help you get started.
 
 ### Reporting Bugs
 
-Open an issue with a clear description, steps to reproduce, and expected vs actual behavior. Include your environment (OS, Node version, Rust version, Claude Code version).
+Open an issue with a clear description, steps to reproduce, and expected vs actual behavior. Include your environment (OS, Node version, Claude Code version, and stack profile from `.agstack/stack.json`).
 
 ### Suggesting Features
 
@@ -28,7 +28,7 @@ This project enforces strict coding standards. Please read `CLAUDE.md` for the f
 - **Biome** for linting and formatting — run `npx @biomejs/biome check --write .` before committing
 - **Conventional commits** — `type(scope): description` (max 72 chars)
 - **TypeScript strict mode** — no `any`, no unchecked casts
-- **Rust Clippy pedantic** — `cargo clippy -- -D warnings`
+- **Rust Clippy pedantic** — `cargo clippy -- -D warnings` (nestjs-rust profile only)
 - Functions under 50 lines, files under 300 lines
 - No TODO/FIXME in PRs to main — create a backlog item instead
 
@@ -43,9 +43,19 @@ This project enforces strict coding standards. Please read `CLAUDE.md` for the f
 ```bash
 cp .env.example .env
 docker-compose up -d
+
+# NestJS profiles (nestjs-rust / nestjs-only):
 cd frontend && npm install && npm run dev
 cd api && npm install && npx prisma migrate dev && npm run start:dev
-cd jobs && cargo build && cargo run
+cd jobs && cargo build && cargo run   # nestjs-rust only
+
+# Go profile (go-only):
+cd frontend && npm install && npm run dev
+cd backend-go && go run ./cmd/api
+
+# Python profile (python-only):
+cd frontend && npm install && npm run dev
+cd backend-python && pip install -e . && uvicorn app.main:app --reload
 ```
 
 ## Code of Conduct

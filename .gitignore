@@ -9,8 +9,20 @@ build/
 .next/
 out/
 
-# Rust
+# Rust (nestjs-rust profile)
 jobs/target/
+
+# Go (go-only profile)
+backend-go/bin/
+backend-go/tmp/
+
+# Python (python-only profile)
+backend-python/__pycache__/
+backend-python/**/__pycache__/
+*.pyc
+backend-python/.venv/
+backend-python/dist/
+backend-python/*.egg-info/
 
 # Environment
 .env

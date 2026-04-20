@@ -2,7 +2,7 @@
 
 ## Overview
 [Brief description — 2-3 sentences. Example: "Order management platform for SMEs.
-Frontend is React SPA, backend is NestJS REST API, heavy jobs processed by Rust worker."]
+Frontend is React SPA, backend handles REST API and async jobs per stack profile."]
 
 ## Team Mode: [solo | team]
 <!-- Set by /setup. "solo" = 1 dev + AI agents. "team" = multiple devs + AI agents. -->
@@ -287,17 +287,17 @@ the sprint branch workflow is mandatory.
 
 ## Environment Variables
 - Frontend: `VITE_API_URL`, `VITE_APP_ENV`
-- API: `DATABASE_URL`, `REDIS_URL`, `JWT_SECRET`, `JWT_EXPIRES_IN`, `PORT`
-- Jobs: `DATABASE_URL`, `REDIS_URL`, `RUST_LOG`, `WORKER_CONCURRENCY`
-- See `.env.example` for full list
+- API (NestJS profiles): `DATABASE_URL`, `REDIS_URL`, `JWT_SECRET`, `JWT_EXPIRES_IN`, `PORT`
+- Jobs (nestjs-rust only): `DATABASE_URL`, `REDIS_URL`, `RUST_LOG`, `WORKER_CONCURRENCY`
+- Go/Python backends: `DATABASE_URL`, `REDIS_URL`, `PORT` (+ framework-specific vars)
+- See `.env.example` for full list — `/setup` adjusts this based on your stack profile
 
 ## Key Decisions
 - NestJS over Express: need module system, DI, and decorator-based validation
   → ADR: docs/decisions/001-nestjs-over-express.md
-- Rust for jobs: CPU-intensive tasks (image processing, report gen) need performance
+- Rust for jobs (nestjs-rust profile): CPU-intensive tasks need performance
   → ADR: docs/decisions/002-rust-for-jobs.md
-  → Per-project override: `/tech-stack-consult` can swap Rust for a BullMQ worker in NestJS
-    (see `docs/decisions/000-tech-stack.md` if present)
+  → Per-project override: `/tech-stack-consult` can swap to `nestjs-only` (BullMQ), `go-only`, or `python-only`
 - Zustand over Redux: simpler API, less boilerplate, sufficient for this app scale
   → ADR: docs/decisions/003-zustand-over-redux.md
 - Redis for both queue + cache: reduce infrastructure complexity
