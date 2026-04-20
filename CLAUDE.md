@@ -298,7 +298,7 @@ the sprint branch workflow is mandatory.
 - NestJS over Express: need module system, DI, and decorator-based validation
   → ADR: docs/decisions/001-nestjs-over-express.md
 - Job worker strategy is profile-based: BullMQ (default), Rust, asynq, or Celery
-  → ADR: docs/decisions/002-rust-for-jobs.md (renamed to "Job Worker Strategy")
+  → ADR: docs/decisions/002-job-worker-strategy.md
   → Profile chosen during `/tech-stack-consult`
 - Zustand over Redux: simpler API, less boilerplate, sufficient for this app scale
   → ADR: docs/decisions/003-zustand-over-redux.md
