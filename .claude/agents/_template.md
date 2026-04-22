@@ -1,5 +1,6 @@
 ---
 name: agent-[name]
+model: sonnet # sonnet for coding agents, opus for planning/design agents
 description: >
   [What this agent does — role, stack, responsibilities]
 required_skills:

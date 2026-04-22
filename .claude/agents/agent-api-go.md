@@ -1,5 +1,6 @@
 ---
 name: agent-api-go
+model: sonnet
 description: >
   Go backend API agent — Chi router, pgx database, HTTP handlers,
   business logic, and database migrations. Active when stack profile = go-only.

@@ -1,5 +1,6 @@
 ---
 name: agent-api-python
+model: sonnet
 description: >
   Python backend API agent — FastAPI, SQLAlchemy async, Pydantic validation,
   business logic, and database migrations. Active when stack profile = python-only.

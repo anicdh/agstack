@@ -219,6 +219,21 @@ Choose a mode when starting a sprint via `/plan-sprint`:
 
 See `/plan-sprint` Step 6 for full details on each mode.
 
+### Model assignment by agent role
+
+Each agent declares its model in frontmatter (`model: sonnet` or `model: opus`).
+This controls token usage — Sonnet is significantly cheaper and has 200k context.
+
+| Role | Model | Rationale |
+|------|-------|-----------|
+| Coding agents (api, frontend, jobs) | **sonnet** | Implementation tasks — Sonnet handles coding well |
+| Planning agents (plan-sprint) | **opus** | Deep reasoning, architecture decisions |
+| Design agent (product-design) | **opus** | Creative UX decisions, flow design |
+| Review agents (review, qa) | **sonnet** | Pattern matching, checklist execution |
+
+To override for a specific agent, change `model:` in its frontmatter.
+To override for a single spawn, pass `model: "opus"` in the Agent tool call.
+
 ### Agent routing by stack profile
 
 Check `.agstack/stack.json` at session start. The profile determines which agents are active:

@@ -1,5 +1,6 @@
 ---
 name: agent-product-design
+model: opus
 description: >
   Product Designer agent — creates interactive UI mockups for
   user-oriented epics before implementation. Designs layout,

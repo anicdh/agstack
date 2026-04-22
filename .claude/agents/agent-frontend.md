@@ -1,5 +1,6 @@
 ---
 name: agent-frontend
+model: sonnet
 description: >
   Frontend agent — React 18, TypeScript, TailwindCSS, Shadcn/ui,
   Zustand, React Query, routing, and responsive UI development.

@@ -1,5 +1,6 @@
 ---
 name: agent-api
+model: sonnet
 description: >
   Backend API agent — NestJS modules, Prisma ORM, PostgreSQL,
   authentication, business logic, shared types, and database schema.
